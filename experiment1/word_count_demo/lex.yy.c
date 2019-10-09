@@ -465,7 +465,8 @@ char *yytext;
 	int chars = 0;
 	int words = 0;
 	int lines = 0;
-#line 469 "lex.yy.c"
+	int invalidcount = 0;
+#line 470 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -683,9 +684,9 @@ YY_DECL
 		}
 
 	{
-#line 7 "wc.l"
+#line 11 "wc.l"
 
-#line 689 "lex.yy.c"
+#line 690 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -744,26 +745,26 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 8 "wc.l"
+#line 12 "wc.l"
 {words++; chars += yyleng; }
 	YY_BREAK
 case 2:
 /* rule 2 can match eol */
 YY_RULE_SETUP
-#line 9 "wc.l"
+#line 13 "wc.l"
 {chars++; lines++;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 10 "wc.l"
+#line 14 "wc.l"
 {chars++;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 11 "wc.l"
+#line 15 "wc.l"
 ECHO;
 	YY_BREAK
-#line 767 "lex.yy.c"
+#line 768 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1764,7 +1765,9 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 11 "wc.l"
+#line 15 "wc.l"
+
+
 
 
 int main(int argc, char** argv){
@@ -1779,4 +1782,5 @@ int main(int argc, char** argv){
 	printf("wordcount: %8d\n", words);
 	printf("charactercount: %8d\n", chars);
 	return 0;
+
 }

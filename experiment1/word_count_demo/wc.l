@@ -2,6 +2,7 @@
 	int chars = 0;
 	int words = 0;
 	int lines = 0;
+	int invalidcount = 0;
 %}
 
 letter [a-zA-Z]
