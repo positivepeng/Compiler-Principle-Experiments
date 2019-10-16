@@ -1457,7 +1457,6 @@ yyreturn:
 #line 28 "syntax.y" /* yacc.c:1906  */
 
 
-#include "lex.yy.c"
 int main(int argc, char** argv){
 	if(argc <= 1)
 		return 1;
