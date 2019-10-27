@@ -1,4 +1,5 @@
 %option noyywrap
+%option yylineno
 
 %{
 	#include <stdio.h>
@@ -8,6 +9,14 @@
 	#include "project2.tab.h"
 
 	int output = 1;
+
+	// 维护行号列号
+	int yycolumn = 1;
+	#define YY_USER_ACTION \
+		yylloc.first_line = yylloc.last_line = yylineno; \
+		yylloc.first_column = yycolumn; \
+		yylloc.last_column = yycolumn + yyleng - 1; \
+		yycolumn += yyleng;
 %}
 
 
@@ -21,24 +30,24 @@
 "int"|"float" {if(output) printf("TYPE\n");return TYPE;}
 
 \/\/.*[\n] {printf("Comment:%s", yytext);}
-[ \t\n]	{}; // ignore all whitespace
-
+[ \t]	{}; // ignore all whitespace
+[\n]	{yycolumn = 1;}
 [+-]?[0-9]+\.[0-9]+ 	{
-	yylval.npval=newNode(FLOAT,yytext); 
+	yylval.npval = newNode(FLOAT, yytext, yylloc.first_line, yylloc.first_column); 
 	if(output) 
-		printf("FLOAT:%f\n", yylval.npval->val.fval); 
+		printf("line:%d FLOAT:%f\n", yylloc.first_line, yylval.npval->val.fval); 
 	return FLOAT;
 }
 [+-]?[0-9]+		{
-	yylval.npval=newNode(INT,yytext); 
+	yylval.npval = newNode(INT, yytext, yylloc.first_line, yylloc.first_column); 
 	if(output) 
-		printf("INT:%d\n", yylval.npval->val.ival); 
+		printf("line:%d INT:%d\n", yylloc.first_line, yylval.npval->val.ival); 
 	return INT;
 }
 [a-zA-Z_][a-zA-Z_0-9]* {
-	yylval.npval=newNode(ID,yytext); 
+	yylval.npval = newNode(ID, yytext, yylloc.first_line, yylloc.first_column); 
 	if(output) 
-		printf("ID %s\n", yylval.npval->name); 
+		printf("line:%d ID %s\n", yylloc.first_line, yylval.npval->val.sval); 
 	return ID;
 }
 

@@ -71,7 +71,9 @@ extern int yydebug;
     RETURN = 281,
     IF = 282,
     ELSE = 283,
-    WHILE = 284
+    WHILE = 284,
+    LOWER_THAN_ELSE = 285,
+    LOWER_THAN_COMMA = 286
   };
 #endif
 
@@ -80,13 +82,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 12 "project2.y" /* yacc.c:1909  */
+#line 13 "project2.y" /* yacc.c:1909  */
 
 	int ival;
 	float fval;
 	struct NODE* npval;
 
-#line 90 "project2.tab.h" /* yacc.c:1909  */
+#line 92 "project2.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -94,9 +96,23 @@ typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_DECLARED 1
 #endif
 
+/* Location type.  */
+#if ! defined YYLTYPE && ! defined YYLTYPE_IS_DECLARED
+typedef struct YYLTYPE YYLTYPE;
+struct YYLTYPE
+{
+  int first_line;
+  int first_column;
+  int last_line;
+  int last_column;
+};
+# define YYLTYPE_IS_DECLARED 1
+# define YYLTYPE_IS_TRIVIAL 1
+#endif
+
 
 extern YYSTYPE yylval;
-
+extern YYLTYPE yylloc;
 int yyparse (void);
 
 #endif /* !YY_YY_PROJECT2_TAB_H_INCLUDED  */

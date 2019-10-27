@@ -1,3 +1,4 @@
+%locations
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
@@ -21,7 +22,20 @@
 %token<npval> LP RP LB RB LC RC
 %token<npval> STRUCT RETURN IF ELSE WHILE
 
+// 非终结符
+%type<npval> Program ExtDefList ExtDef ExtDecList Specifier FunDec CompSt VarDec
+%type<npval> StructSpecifier OptTag DefList Tag
+%type<npval> VarList ParamDec
+%type<npval> StmtList Stmt Def Dec DecList Exp Args
+
+// 开始符
 %start Program
+
+// 优先级定义
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
+%nonassoc LOWER_THAN_COMMA
+%nonassoc COMMA
 
 %%
 

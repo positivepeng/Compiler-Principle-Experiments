@@ -6,11 +6,12 @@
 union VAL{
 	int ival;
 	float fval;
+	char* sval;
 };
 
 struct NODE
 {
-	int rowNum, colNum;
+	int lineNum, colNum;
 	union VAL val;
 	char* name;
 	struct NODE* childs, *next, *par;
