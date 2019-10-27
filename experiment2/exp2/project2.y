@@ -2,25 +2,13 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
-
+	#include "tree.h"
+	
 	extern int yylex();
-	// extern int yyparse();
+	extern int yyparse();
 	extern FILE* yyin;
 
 	void yyerror(const char* s);
-	
-	struct node{
-		int val;
-		char* name;
-		struct node* childs, *next, *par;
-	};
-	typedef struct node node;
-
-	void initNodePointer(node* np){
-		np->val = -1;
-		np->name = NULL;
-		np->childs = np->next = np->par = NULL;
-	}
 %}
 
 %union {
@@ -33,14 +21,14 @@
 %token<ival> INT
 %token<fval> FLOAT
 %token<npval> ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV AND OR DOT NOT TYPE
-%token<npval> LP RP LB RB LC RC
-%token<npval> STRUCT RETURN IF ELSE WHILE
+%token LP RP LB RB LC RC
+%token STRUCT RETURN IF ELSE WHILE
 
 // 非终结符
-%type<npval> Program ExtDefList ExtDef ExtDecList Specifier FunDec CompSt VarDec
-%type<npval> StructSpecifier OptTag DefList Tag
-%type<npval> VarList ParamDec
-%type<npval> StmtList Stmt Def Dec DecList Exp Args
+// %type<npval> Program ExtDefList ExtDef ExtDecList Specifier FunDec CompSt VarDec
+// %type<npval> StructSpecifier OptTag DefList Tag
+// %type<npval> VarList ParamDec
+// %type<npval> StmtList Stmt Def Dec DecList Exp Args
 
 // 开始符
 %start Program

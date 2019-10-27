@@ -67,27 +67,15 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include <string.h>
-
+	#include "tree.h"
+	
 	extern int yylex();
-	// extern int yyparse();
+	extern int yyparse();
 	extern FILE* yyin;
 
 	void yyerror(const char* s);
-	
-	struct node{
-		int val;
-		char* name;
-		struct node* childs, *next, *par;
-	};
-	typedef struct node node;
 
-	void initNodePointer(node* np){
-		np->val = -1;
-		np->name = NULL;
-		np->childs = np->next = np->par = NULL;
-	}
-
-#line 91 "project2.tab.c" /* yacc.c:339  */
+#line 79 "project2.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -159,13 +147,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 26 "project2.y" /* yacc.c:355  */
+#line 14 "project2.y" /* yacc.c:355  */
 
 	int ival;
 	float fval;
 	node* npval;
 
-#line 169 "project2.tab.c" /* yacc.c:355  */
+#line 157 "project2.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -182,7 +170,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 186 "project2.tab.c" /* yacc.c:358  */
+#line 174 "project2.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -482,13 +470,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    56,    56,    66,    67,    69,    70,    71,    73,    74,
-      79,    80,    82,    83,    85,    86,    88,    92,    93,    95,
-      96,    98,    99,   101,   105,   107,   108,   110,   111,   112,
-     113,   114,   115,   120,   121,   123,   125,   126,   128,   129,
-     133,   134,   135,   136,   137,   138,   139,   140,   141,   142,
-     143,   144,   145,   146,   147,   148,   149,   150,   151,   152,
-     155,   156
+       0,    44,    44,    54,    55,    57,    58,    59,    61,    62,
+      67,    68,    70,    71,    73,    74,    76,    80,    81,    83,
+      84,    86,    87,    89,    93,    95,    96,    98,    99,   100,
+     101,   102,   103,   108,   109,   111,   113,   114,   116,   117,
+     121,   122,   123,   124,   125,   126,   127,   128,   129,   130,
+     131,   132,   133,   134,   135,   136,   137,   138,   139,   140,
+     143,   144
 };
 #endif
 
@@ -1352,7 +1340,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 56 "project2.y" /* yacc.c:1646  */
+#line 44 "project2.y" /* yacc.c:1646  */
     {
 		// $$ = (node*)malloc(sizeof(node)); 
 		// $$->name = (char*)malloc(10);
@@ -1362,11 +1350,11 @@ yyreduce:
 		// printf("Childs:%s\n", "ExtDefList");
 		// free($$);
 	}
-#line 1366 "project2.tab.c" /* yacc.c:1646  */
+#line 1354 "project2.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1370 "project2.tab.c" /* yacc.c:1646  */
+#line 1358 "project2.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1594,7 +1582,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 159 "project2.y" /* yacc.c:1906  */
+#line 147 "project2.y" /* yacc.c:1906  */
 
 
 int main(int argc, char** argv) {
