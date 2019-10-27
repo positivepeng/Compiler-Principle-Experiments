@@ -15,11 +15,11 @@
 	struct NODE* npval;
 }
 
-%token<ival> INT
-%token<fval> FLOAT
+%token<npval> INT
+%token<npval> FLOAT
 %token<npval> ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV AND OR DOT NOT TYPE
-%token LP RP LB RB LC RC
-%token STRUCT RETURN IF ELSE WHILE
+%token<npval> LP RP LB RB LC RC
+%token<npval> STRUCT RETURN IF ELSE WHILE
 
 %start Program
 

@@ -841,120 +841,135 @@ YY_RULE_SETUP
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 25 "project2.l"
-{yylval.fval = atof(yytext); if(output) printf("FLOAT:%f\n", yylval.fval); return FLOAT;}
+#line 26 "project2.l"
+{
+	yylval.npval=newNode(FLOAT,yytext); 
+	if(output) 
+		printf("FLOAT:%f\n", yylval.npval->val.fval); 
+	return FLOAT;
+}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 26 "project2.l"
-{yylval.ival = atoi(yytext); if(output) printf("INT:%d\n", yylval.ival); return INT;}
+#line 32 "project2.l"
+{
+	yylval.npval=newNode(INT,yytext); 
+	if(output) 
+		printf("INT:%d\n", yylval.npval->val.ival); 
+	return INT;
+}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 27 "project2.l"
-{yylval.npval=newNode(ID,yytext); printf("ID %s\n", yylval.npval->name); return ID;}
+#line 38 "project2.l"
+{
+	yylval.npval=newNode(ID,yytext); 
+	if(output) 
+		printf("ID %s\n", yylval.npval->name); 
+	return ID;
+}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 29 "project2.l"
+#line 45 "project2.l"
 {if(output) printf("SEMI\n");return SEMI;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 30 "project2.l"
+#line 46 "project2.l"
 {if(output) printf("COMMA\n");return COMMA;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 31 "project2.l"
+#line 47 "project2.l"
 {if(output) printf("ASSIGNOP\n");return ASSIGNOP;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 32 "project2.l"
+#line 48 "project2.l"
 {if(output) printf("RELOP\n");return RELOP;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 33 "project2.l"
+#line 49 "project2.l"
 {if(output) printf("PLUS\n");return PLUS;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 34 "project2.l"
+#line 50 "project2.l"
 {if(output) printf("MINUS\n");return MINUS;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 35 "project2.l"
+#line 51 "project2.l"
 {if(output) printf("STAR\n");return STAR;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 36 "project2.l"
+#line 52 "project2.l"
 {if(output) printf("DIV\n");return DIV;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 37 "project2.l"
+#line 53 "project2.l"
 {if(output) printf("AND\n");return AND;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 38 "project2.l"
+#line 54 "project2.l"
 {if(output) printf("OR\n");return OR;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 39 "project2.l"
+#line 55 "project2.l"
 {if(output) printf("DOT\n");return DOT;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 40 "project2.l"
+#line 56 "project2.l"
 {if(output) printf("NOT\n");return NOT;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 41 "project2.l"
+#line 57 "project2.l"
 {if(output) printf("LP\n");return LP;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 42 "project2.l"
+#line 58 "project2.l"
 {if(output) printf("RP\n");return RP;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 43 "project2.l"
+#line 59 "project2.l"
 {if(output) printf("LB\n");return LB;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 44 "project2.l"
+#line 60 "project2.l"
 {if(output) printf("RB\n");return RB;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 45 "project2.l"
+#line 61 "project2.l"
 {if(output) printf("LC\n");return LC;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 46 "project2.l"
+#line 62 "project2.l"
 {if(output) printf("RC\n");return RC;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 47 "project2.l"
+#line 63 "project2.l"
 {printf("undefined character %c\n",yytext[0]);}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 49 "project2.l"
+#line 65 "project2.l"
 ECHO;
 	YY_BREAK
-#line 958 "lex.yy.c"
+#line 973 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1955,6 +1970,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 49 "project2.l"
+#line 65 "project2.l"
 
 

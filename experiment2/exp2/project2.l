@@ -22,9 +22,25 @@
 
 \/\/.*[\n] {printf("Comment:%s", yytext);}
 [ \t\n]	{}; // ignore all whitespace
-[+-]?[0-9]+\.[0-9]+ 	{yylval.fval = atof(yytext); if(output) printf("FLOAT:%f\n", yylval.fval); return FLOAT;}
-[+-]?[0-9]+		{yylval.ival = atoi(yytext); if(output) printf("INT:%d\n", yylval.ival); return INT;}
-[a-zA-Z_][a-zA-Z_0-9]* {yylval.npval=newNode(ID,yytext); printf("ID %s\n", yylval.npval->name); return ID;}
+
+[+-]?[0-9]+\.[0-9]+ 	{
+	yylval.npval=newNode(FLOAT,yytext); 
+	if(output) 
+		printf("FLOAT:%f\n", yylval.npval->val.fval); 
+	return FLOAT;
+}
+[+-]?[0-9]+		{
+	yylval.npval=newNode(INT,yytext); 
+	if(output) 
+		printf("INT:%d\n", yylval.npval->val.ival); 
+	return INT;
+}
+[a-zA-Z_][a-zA-Z_0-9]* {
+	yylval.npval=newNode(ID,yytext); 
+	if(output) 
+		printf("ID %s\n", yylval.npval->name); 
+	return ID;
+}
 
 ; {if(output) printf("SEMI\n");return SEMI;}
 , {if(output) printf("COMMA\n");return COMMA;}
