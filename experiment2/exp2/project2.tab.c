@@ -66,7 +66,7 @@
 
 	#include <stdio.h>
 	#include <stdlib.h>
-
+	#include "tree.h"
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
@@ -147,8 +147,9 @@ union YYSTYPE
 
 	int ival;
 	float fval;
+	struct NODE* npval;
 
-#line 152 "project2.tab.c" /* yacc.c:355  */
+#line 153 "project2.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -165,7 +166,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 169 "project2.tab.c" /* yacc.c:358  */
+#line 170 "project2.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -465,13 +466,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    27,    27,    29,    30,    32,    33,    34,    36,    37,
-      42,    43,    45,    46,    48,    49,    51,    56,    57,    59,
-      60,    62,    63,    65,    69,    71,    72,    74,    75,    76,
-      77,    78,    79,    84,    85,    87,    89,    90,    92,    93,
-      97,    98,    99,   100,   101,   102,   103,   104,   105,   106,
-     107,   108,   109,   110,   111,   112,   113,   114,   115,   116,
-     119,   120
+       0,    28,    28,    30,    31,    33,    34,    35,    37,    38,
+      43,    44,    46,    47,    49,    50,    52,    57,    58,    60,
+      61,    63,    64,    66,    70,    72,    73,    75,    76,    77,
+      78,    79,    80,    85,    86,    88,    90,    91,    93,    94,
+      98,    99,   100,   101,   102,   103,   104,   105,   106,   107,
+     108,   109,   110,   111,   112,   113,   114,   115,   116,   117,
+     120,   121
 };
 #endif
 
@@ -1333,7 +1334,7 @@ yyreduce:
   switch (yyn)
     {
       
-#line 1337 "project2.tab.c" /* yacc.c:1646  */
+#line 1338 "project2.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1561,7 +1562,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 123 "project2.y" /* yacc.c:1906  */
+#line 124 "project2.y" /* yacc.c:1906  */
 
 
 int main(int argc, char** argv) {

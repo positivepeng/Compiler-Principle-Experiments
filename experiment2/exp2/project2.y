@@ -1,7 +1,7 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
-
+	#include "tree.h"
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
@@ -12,11 +12,12 @@
 %union {
 	int ival;
 	float fval;
+	struct NODE* npval;
 }
 
 %token<ival> INT
 %token<fval> FLOAT
-%token ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV AND OR DOT NOT TYPE
+%token<npval> ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV AND OR DOT NOT TYPE
 %token LP RP LB RB LC RC
 %token STRUCT RETURN IF ELSE WHILE
 

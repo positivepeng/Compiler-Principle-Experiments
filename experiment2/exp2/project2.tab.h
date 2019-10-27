@@ -84,8 +84,9 @@ union YYSTYPE
 
 	int ival;
 	float fval;
+	struct NODE* npval;
 
-#line 89 "project2.tab.h" /* yacc.c:1909  */
+#line 90 "project2.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
