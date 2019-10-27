@@ -18,5 +18,5 @@
 ### 2.2 正式实验：
 2.2.1：设计包含全部生成式的测试c代码，使用写好的词法分析器(project2.l)和语法分析器(project2.y)对测试代码进行分析，要求无语法错误。
 运行命令 `bison project2.y && flex project2.l && gcc project2.tab.c lex.yy.c && ./a.out test.c`<br>
-2.2.2：
-
+2.2.2：构建语法树。<br>
+2.2.3：分析语法错误。<br>

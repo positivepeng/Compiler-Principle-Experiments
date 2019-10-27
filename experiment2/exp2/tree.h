@@ -16,4 +16,5 @@ struct NODE
 	char* name;
 	struct NODE* childs, *next, *par;
 };
+
 typedef struct NODE node;
