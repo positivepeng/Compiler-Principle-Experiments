@@ -91,7 +91,10 @@
 # define YYERROR_VERBOSE 0
 #endif
 
-
+/* In a future release of Bison, this section will be replaced
+   by #include "project2.tab.h".  */
+#ifndef YY_YY_PROJECT2_TAB_H_INCLUDED
+# define YY_YY_PROJECT2_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
 # define YYDEBUG 0
@@ -145,7 +148,7 @@ union YYSTYPE
 	int ival;
 	float fval;
 
-#line 149 "project2.tab.c" /* yacc.c:355  */
+#line 152 "project2.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -158,11 +161,11 @@ extern YYSTYPE yylval;
 
 int yyparse (void);
 
-
+#endif /* !YY_YY_PROJECT2_TAB_H_INCLUDED  */
 
 /* Copy the second part of user declarations.  */
 
-#line 166 "project2.tab.c" /* yacc.c:358  */
+#line 169 "project2.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -1330,7 +1333,7 @@ yyreduce:
   switch (yyn)
     {
       
-#line 1334 "project2.tab.c" /* yacc.c:1646  */
+#line 1337 "project2.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
