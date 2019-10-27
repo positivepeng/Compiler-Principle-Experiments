@@ -84,9 +84,11 @@ union YYSTYPE
 {
 #line 26 "project2.y" /* yacc.c:1909  */
 
+	int ival;
+	float fval;
 	node* npval;
 
-#line 90 "project2.tab.h" /* yacc.c:1909  */
+#line 92 "project2.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;
