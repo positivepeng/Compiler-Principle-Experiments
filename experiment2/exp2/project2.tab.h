@@ -71,7 +71,9 @@ extern int yydebug;
     RETURN = 281,
     IF = 282,
     ELSE = 283,
-    WHILE = 284
+    WHILE = 284,
+    LOWER_THAN_ELSE = 285,
+    LOWER_THAN_COMMA = 286
   };
 #endif
 
@@ -80,12 +82,11 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 12 "project2.y" /* yacc.c:1909  */
+#line 26 "project2.y" /* yacc.c:1909  */
 
-	int ival;
-	float fval;
+	node* npval;
 
-#line 89 "project2.tab.h" /* yacc.c:1909  */
+#line 90 "project2.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

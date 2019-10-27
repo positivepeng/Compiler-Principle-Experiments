@@ -66,14 +66,28 @@
 
 	#include <stdio.h>
 	#include <stdlib.h>
+	#include <string.h>
 
 	extern int yylex();
-	extern int yyparse();
+	// extern int yyparse();
 	extern FILE* yyin;
 
 	void yyerror(const char* s);
+	
+	struct node{
+		int val;
+		char* name;
+		struct node* childs, *next, *par;
+	};
+	typedef struct node node;
 
-#line 77 "project2.tab.c" /* yacc.c:339  */
+	void initNodePointer(node* np){
+		np->val = -1;
+		np->name = NULL;
+		np->childs = np->next = np->par = NULL;
+	}
+
+#line 91 "project2.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -131,7 +145,9 @@ extern int yydebug;
     RETURN = 281,
     IF = 282,
     ELSE = 283,
-    WHILE = 284
+    WHILE = 284,
+    LOWER_THAN_ELSE = 285,
+    LOWER_THAN_COMMA = 286
   };
 #endif
 
@@ -140,12 +156,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 12 "project2.y" /* yacc.c:355  */
+#line 26 "project2.y" /* yacc.c:355  */
 
 	int ival;
 	float fval;
+	node* npval;
 
-#line 149 "project2.tab.c" /* yacc.c:355  */
+#line 166 "project2.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -162,7 +179,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 166 "project2.tab.c" /* yacc.c:358  */
+#line 183 "project2.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -407,7 +424,7 @@ union yyalloc
 #define YYLAST   208
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  30
+#define YYNTOKENS  32
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  22
 /* YYNRULES -- Number of rules.  */
@@ -418,7 +435,7 @@ union yyalloc
 /* YYTRANSLATE[YYX] -- Symbol number corresponding to YYX as returned
    by yylex, with out-of-bounds checking.  */
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   284
+#define YYMAXUTOK   286
 
 #define YYTRANSLATE(YYX)                                                \
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
@@ -455,20 +472,20 @@ static const yytype_uint8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
        5,     6,     7,     8,     9,    10,    11,    12,    13,    14,
       15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
-      25,    26,    27,    28,    29
+      25,    26,    27,    28,    29,    30,    31
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    27,    27,    29,    30,    32,    33,    34,    36,    37,
-      42,    43,    45,    46,    48,    49,    51,    56,    57,    59,
-      60,    62,    63,    65,    69,    71,    72,    74,    75,    76,
-      77,    78,    79,    84,    85,    87,    89,    90,    92,    93,
-      97,    98,    99,   100,   101,   102,   103,   104,   105,   106,
-     107,   108,   109,   110,   111,   112,   113,   114,   115,   116,
-     119,   120
+       0,    56,    56,    66,    67,    69,    70,    71,    73,    74,
+      79,    80,    82,    83,    85,    86,    88,    92,    93,    95,
+      96,    98,    99,   101,   105,   107,   108,   110,   111,   112,
+     113,   114,   115,   120,   121,   123,   125,   126,   128,   129,
+     133,   134,   135,   136,   137,   138,   139,   140,   141,   142,
+     143,   144,   145,   146,   147,   148,   149,   150,   151,   152,
+     155,   156
 };
 #endif
 
@@ -480,10 +497,11 @@ static const char *const yytname[] =
   "$end", "error", "$undefined", "INT", "FLOAT", "ID", "SEMI", "COMMA",
   "ASSIGNOP", "RELOP", "PLUS", "MINUS", "STAR", "DIV", "AND", "OR", "DOT",
   "NOT", "TYPE", "LP", "RP", "LB", "RB", "LC", "RC", "STRUCT", "RETURN",
-  "IF", "ELSE", "WHILE", "$accept", "Program", "ExtDefList", "ExtDef",
-  "ExtDecList", "Specifier", "StructSpecifier", "OptTag", "Tag", "VarDec",
-  "FunDec", "VarList", "ParamDec", "CompSt", "StmtList", "Stmt", "DefList",
-  "Def", "DecList", "Dec", "Exp", "Args", YY_NULLPTR
+  "IF", "ELSE", "WHILE", "LOWER_THAN_ELSE", "LOWER_THAN_COMMA", "$accept",
+  "Program", "ExtDefList", "ExtDef", "ExtDecList", "Specifier",
+  "StructSpecifier", "OptTag", "Tag", "VarDec", "FunDec", "VarList",
+  "ParamDec", "CompSt", "StmtList", "Stmt", "DefList", "Def", "DecList",
+  "Dec", "Exp", "Args", YY_NULLPTR
 };
 #endif
 
@@ -494,7 +512,8 @@ static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
-     275,   276,   277,   278,   279,   280,   281,   282,   283,   284
+     275,   276,   277,   278,   279,   280,   281,   282,   283,   284,
+     285,   286
 };
 # endif
 
@@ -618,30 +637,30 @@ static const yytype_int8 yycheck[] =
      symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,    18,    25,    31,    32,    33,    35,    36,     5,    37,
-      38,     0,    32,     5,     6,    34,    39,    40,    23,    19,
-       6,     7,    21,    23,    43,    35,    46,    47,    20,    35,
-      41,    42,     5,    34,     3,    46,    39,    48,    49,    24,
-      46,    39,    20,     7,    22,     3,     4,     5,    11,    17,
-      19,    26,    27,    29,    43,    44,    45,    50,     8,     6,
-       7,    41,    19,    50,    50,    50,    50,    19,    19,    24,
-      44,     3,     4,     6,     8,     9,    10,    11,    12,    13,
-      14,    15,    16,    21,    50,    48,    20,    50,    51,    20,
-       6,    50,    50,    50,    50,    50,    50,    50,    50,    50,
-      50,     5,    50,     7,    20,    20,    20,    22,    51,    45,
-      45,    28,    45
+       0,    18,    25,    33,    34,    35,    37,    38,     5,    39,
+      40,     0,    34,     5,     6,    36,    41,    42,    23,    19,
+       6,     7,    21,    23,    45,    37,    48,    49,    20,    37,
+      43,    44,     5,    36,     3,    48,    41,    50,    51,    24,
+      48,    41,    20,     7,    22,     3,     4,     5,    11,    17,
+      19,    26,    27,    29,    45,    46,    47,    52,     8,     6,
+       7,    43,    19,    52,    52,    52,    52,    19,    19,    24,
+      46,     3,     4,     6,     8,     9,    10,    11,    12,    13,
+      14,    15,    16,    21,    52,    50,    20,    52,    53,    20,
+       6,    52,    52,    52,    52,    52,    52,    52,    52,    52,
+      52,     5,    52,     7,    20,    20,    20,    22,    53,    47,
+      47,    28,    47
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_uint8 yyr1[] =
 {
-       0,    30,    31,    32,    32,    33,    33,    33,    34,    34,
-      35,    35,    36,    36,    37,    37,    38,    39,    39,    40,
-      40,    41,    41,    42,    43,    44,    44,    45,    45,    45,
-      45,    45,    45,    46,    46,    47,    48,    48,    49,    49,
-      50,    50,    50,    50,    50,    50,    50,    50,    50,    50,
-      50,    50,    50,    50,    50,    50,    50,    50,    50,    50,
-      51,    51
+       0,    32,    33,    34,    34,    35,    35,    35,    36,    36,
+      37,    37,    38,    38,    39,    39,    40,    41,    41,    42,
+      42,    43,    43,    44,    45,    46,    46,    47,    47,    47,
+      47,    47,    47,    48,    48,    49,    50,    50,    51,    51,
+      52,    52,    52,    52,    52,    52,    52,    52,    52,    52,
+      52,    52,    52,    52,    52,    52,    52,    52,    52,    52,
+      53,    53
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
@@ -1329,8 +1348,22 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
-      
-#line 1334 "project2.tab.c" /* yacc.c:1646  */
+        case 2:
+#line 56 "project2.y" /* yacc.c:1646  */
+    {
+		// $$ = (node*)malloc(sizeof(node)); 
+		// $$->name = (char*)malloc(10);
+		// strcpy($$->name, "Program"); 
+		// $$->childs = $1; 
+		// printf("Root:%s\n", $$->name); 
+		// printf("Childs:%s\n", "ExtDefList");
+		// free($$);
+	}
+#line 1363 "project2.tab.c" /* yacc.c:1646  */
+    break;
+
+
+#line 1367 "project2.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1558,7 +1591,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 123 "project2.y" /* yacc.c:1906  */
+#line 159 "project2.y" /* yacc.c:1906  */
 
 
 int main(int argc, char** argv) {

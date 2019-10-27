@@ -2,8 +2,8 @@
 
 %{
 	#include <stdio.h>
-
-	#define YY_DECL int yylex()
+	#include <stdlib.h>
+	// #define YY_DECL int yylex()
 
 	#include "project2.tab.h"
 
@@ -22,9 +22,9 @@
 "int"|"float" {if(output) printf("TYPE\n");return TYPE;}
 
 \/\/.*[\n] {printf("Comment:%s", yytext);}
-[ \t\n]	{}; // ignore all whitespace
-[+-]?[0-9]+\.[0-9]+ 	{yylval.fval = atof(yytext); if(output) printf("FLOAT:%f\n", yylval.fval); return FLOAT;}
-[+-]?[0-9]+		{yylval.ival = atoi(yytext); if(output) printf("INT:%d\n", yylval.ival); return INT;}
+[ \t\n]	{}; 	// ignore all whitespace
+[+-]?[0-9]+\.[0-9]+ 	{yylval=atof(yytext); if(output) printf("FLOAT:%f\n", yylval); return FLOAT;}
+[+-]?[0-9]+		{yylval=atoi(yytext); if(output) printf("INT:%d\n", yylval); return INT;}
 [a-zA-Z_][a-zA-Z_0-9]* {printf("ID %s\n", yytext); return ID;}
 
 ; {if(output) printf("SEMI\n");return SEMI;}

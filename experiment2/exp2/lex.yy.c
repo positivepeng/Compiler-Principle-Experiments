@@ -513,8 +513,8 @@ char *yytext;
 #line 1 "project2.l"
 #line 4 "project2.l"
 	#include <stdio.h>
-
-	#define YY_DECL int yylex()
+	#include <stdlib.h>
+	// #define YY_DECL int yylex()
 
 	#include "project2.tab.h"
 
@@ -838,17 +838,17 @@ case 8:
 /* rule 8 can match eol */
 YY_RULE_SETUP
 #line 25 "project2.l"
-{}; // ignore all whitespace
+{}; 	// ignore all whitespace
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 26 "project2.l"
-{yylval.fval = atof(yytext); if(output) printf("FLOAT:%f\n", yylval.fval); return FLOAT;}
+{yylval=atof(yytext); if(output) printf("FLOAT:%f\n", yylval); return FLOAT;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 27 "project2.l"
-{yylval.ival = atoi(yytext); if(output) printf("INT:%d\n", yylval.ival); return INT;}
+{yylval=atoi(yytext); if(output) printf("INT:%d\n", yylval); return INT;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP

@@ -1,33 +1,70 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
+	#include <string.h>
 
 	extern int yylex();
-	extern int yyparse();
+	// extern int yyparse();
 	extern FILE* yyin;
 
 	void yyerror(const char* s);
+	
+	struct node{
+		int val;
+		char* name;
+		struct node* childs, *next, *par;
+	};
+	typedef struct node node;
+
+	void initNodePointer(node* np){
+		np->val = -1;
+		np->name = NULL;
+		np->childs = np->next = np->par = NULL;
+	}
 %}
 
 %union {
 	int ival;
 	float fval;
+	node* npval;
 }
 
+// 终结符
 %token<ival> INT
 %token<fval> FLOAT
-%token ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV AND OR DOT NOT TYPE
-%token LP RP LB RB LC RC
-%token STRUCT RETURN IF ELSE WHILE
+%token<npval> ID SEMI COMMA ASSIGNOP RELOP PLUS MINUS STAR DIV AND OR DOT NOT TYPE
+%token<npval> LP RP LB RB LC RC
+%token<npval> STRUCT RETURN IF ELSE WHILE
 
+// 非终结符
+%type<npval> Program ExtDefList ExtDef ExtDecList Specifier FunDec CompSt VarDec
+%type<npval> StructSpecifier OptTag DefList Tag
+%type<npval> VarList ParamDec
+%type<npval> StmtList Stmt Def Dec DecList Exp Args
+
+// 开始符
 %start Program
+
+// 优先级定义
+%nonassoc LOWER_THAN_ELSE
+%nonassoc ELSE
+%nonassoc LOWER_THAN_COMMA
+%nonassoc COMMA
 
 %%
 
-Program : ExtDefList
+Program : ExtDefList {
+		// $$ = (node*)malloc(sizeof(node)); 
+		// $$->name = (char*)malloc(10);
+		// strcpy($$->name, "Program"); 
+		// $$->childs = $1; 
+		// printf("Root:%s\n", $$->name); 
+		// printf("Childs:%s\n", "ExtDefList");
+		// free($$);
+	}
 ;
-ExtDefList : ExtDef ExtDefList
-		|
+ExtDefList : ExtDef ExtDefList 
+		| 
 ;
 ExtDef : Specifier ExtDecList SEMI
 		| Specifier SEMI
@@ -52,7 +89,6 @@ Tag : ID
 ;
 
 
-
 VarDec : ID
 		| VarDec LB INT RB
 ;
@@ -74,7 +110,7 @@ StmtList : Stmt StmtList
 Stmt : Exp SEMI
 		| CompSt
 		| RETURN Exp SEMI
-		| IF LP Exp RP Stmt
+		| IF LP Exp RP Stmt    %prec LOWER_THAN_ELSE
 		| IF LP Exp RP Stmt ELSE Stmt
 		| WHILE LP Exp RP Stmt
 ;
@@ -86,8 +122,8 @@ DefList : Def DefList
 ;
 Def : Specifier DecList SEMI
 ;
-DecList : Dec
-		| Dec COMMA DecList
+DecList : Dec 					%prec LOWER_THAN_COMMA
+		| Dec COMMA DecList 
 ;
 Dec : VarDec
 		| VarDec ASSIGNOP Exp
@@ -109,8 +145,8 @@ Exp : Exp ASSIGNOP Exp
 		| ID LP RP
 		| Exp LB Exp RB
 		| Exp DOT ID
-		| Exp INT   // new
-		| Exp FLOAT // new 
+		| Exp INT   	// new
+		| Exp FLOAT 	// new 
 		| ID
 		| INT
 		| FLOAT
