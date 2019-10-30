@@ -547,7 +547,7 @@ char *yytext;
 	#include "project2.tab.h"
 	#define YY_DECL int yylex()
 
-	int output = 1;
+	int output = 0;
 
 	// 维护行号列号
 	int yycolumn = 1;

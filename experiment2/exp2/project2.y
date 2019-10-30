@@ -6,7 +6,7 @@
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
-
+	int debug = 0;
 	void yyerror(const char* s);
 %}
 
@@ -39,106 +39,299 @@
 %%
 
 Program : ExtDefList {
-		// $$ = (node*)malloc(sizeof(node)); 
-		// $$->name = (char*)malloc(10);
-		// strcpy($$->name, "Program"); 
-		// $$->childs = $1; 
-		// printf("Root:%s\n", $$->name); 
-		// printf("Childs:%s\n", "ExtDefList");
-		// free($$);
-	}
+	$$ = newNode(-1, "Program", NULL);
+	addChild(2, $$, $1);
+	if(debug)
+		printf("parse : %s -> %s\n", $$->name, $1->name);	
+	dfsTraverse(0, $$);
+}
 ;
-ExtDefList : ExtDef ExtDefList 
-		| 
+ExtDefList : ExtDef ExtDefList{
+	$$ = (node*)newNode(-1, "ExtDefList", NULL);
+	addChild(3, $$, $1, $2);
+	if(debug)
+		printf("parse : %s -> %s %s\n", $$->name, $$->childs->name, $1->next == NULL ? "" : $1->next->name);
+}
+		| {
+	$$ = NULL;
+}
 ;
-ExtDef : Specifier ExtDecList SEMI
-		| Specifier SEMI
-		| Specifier FunDec CompSt
+ExtDef : Specifier ExtDecList SEMI{
+	$$ = (node*) newNode(-1, "ExtDef", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| Specifier SEMI{
+	$$ = (node*)newNode(-1, "ExtDef", NULL);
+	addChild(3, $$, $1, $2);
+	if(debug)
+		printf("parse : %s -> %s %s\n", $$->name, $$->childs->name, $1->next->name);
+}
+		| Specifier FunDec CompSt{
+	$$ = (node*)newNode(-1, "ExtDef", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
 ;
-ExtDecList : VarDec
-		| VarDec COMMA ExtDecList
+ExtDecList : VarDec{
+	$$ = (node*) newNode(-1, "ExtDecList", NULL);
+	addChild(2, $$, $1);
+}
+		| VarDec COMMA ExtDecList{
+	$$ = (node*) newNode(-1, "ExtDecList", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+;
+
+Specifier : TYPE{
+	$$ = (node*)newNode(-1, "Specifier", NULL);
+	addChild(2, $$, $1);
+	if(debug)
+		printf("parse : %s -> %s\n", $$->name, $$->childs->name);
+}
+		| StructSpecifier{
+	$$ = (node*)newNode(-1, "Specifier", NULL);
+	addChild(2, $$, $1);	
+	if(debug)
+		printf("parse : %s -> %s\n", $$->name, $$->childs->name);
+}
+;
+StructSpecifier : STRUCT OptTag LC DefList RC{
+	$$ = (node*)newNode(-1, "StructSpecifier", NULL);
+	addChild(6, $$, $1, $2, $3, $4, $5);
+	if(debug)
+		printf("parse : %s -> %s %s %s %s %s\n", $$->name, $1->name, $1->next->name, $2->next->name, $3->next->name, $4->next->name);	
+}
+		| STRUCT Tag{
+	$$ = (node*)newNode(-1, "StructSpecifier", NULL);
+	addChild(3, $$, $1, $2);
+}
+;
+OptTag : ID{
+	$$ = (node*)newNode(-1, "OptTag", NULL);
+	addChild(2, $$, $1);
+	if(debug)
+		printf("parse : %s -> %s\n", $$->name, $1->name);
+}
+		|{
+	$$ = NULL;
+}
+;
+Tag : ID{
+	$$ = (node*)newNode(-1, "Tag", NULL);
+	addChild(2, $$, $1);
+	if(debug)
+		printf("parse : %s -> %s\n", $$->name, $1->name);
+}
+;
+
+
+VarDec : ID{
+	$$ = (node*)newNode(-1, "VarDec", NULL);
+	addChild(2, $$, $1);
+	if(debug)
+		printf("parse : %s -> %s\n", $$->name, $1->name);
+}
+		| VarDec LB INT RB{
+	$$ = (node*)newNode(-1, "VarDec", NULL);
+	addChild(5, $$, $1, $2, $3, $4);
+}
+;
+FunDec : ID LP VarList RP{
+	$$ = (node*)newNode(-1, "FunDec", NULL);
+	addChild(5, $$, $1, $2, $3, $4);
+}
+		| ID LP RP{
+	$$ = (node*)newNode(-1, "FunDec", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+;
+VarList : ParamDec COMMA VarList{
+	$$ = (node*)newNode(-1, "VarList", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| ParamDec{
+	$$ = (node*)newNode(-1, "VarList", NULL);
+	addChild(2, $$, $1);	
+}
+;
+ParamDec : Specifier VarDec{
+	$$ = (node*)newNode(-1, "ParamDec", NULL);
+	addChild(3, $$, $1, $2);
+}
+;
+
+
+CompSt : LC DefList StmtList RC{
+	$$ = (node*)newNode(-1, "CompSt", NULL);
+	addChild(5, $$, $1, $2, $3, $4);
+}
+;
+StmtList : Stmt StmtList{
+	$$ = (node*)newNode(-1, "StmtList", NULL);
+	addChild(3, $$, $1, $2);	
+}
+		|{
+	$$ = NULL;
+}
+;
+Stmt : Exp SEMI{
+	$$ = (node*)newNode(-1, "Stmt", NULL);
+	addChild(3, $$, $1, $2);
+}
+		| CompSt{
+	$$ = (node*)newNode(-1, "Stmt", NULL);
+	addChild(2, $$, $1);	
+}
+		| RETURN Exp SEMI{
+	$$ = (node*)newNode(-1, "Stmt", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| IF LP Exp RP Stmt    %prec LOWER_THAN_ELSE{
+	$$ = (node*)newNode(-1, "Stmt", NULL);
+	addChild(6, $$, $1, $2, $3, $4, $5);
+}
+		| IF LP Exp RP Stmt ELSE Stmt{
+	$$ = (node*)newNode(-1, "Stmt", NULL);
+	addChild(8, $$, $1, $2, $3, $4, $5, $6, $7);
+}
+		| WHILE LP Exp RP Stmt{
+	$$ = (node*)newNode(-1, "Stmt", NULL);
+	addChild(6, $$, $1, $2, $3, $4, $5);
+}
 ;
 
 
 
-Specifier : TYPE
-		| StructSpecifier
+DefList : Def DefList{
+	$$ = (node*)newNode(-1, "DefList", NULL);
+	addChild(3, $$, $1, $2);
+	if(debug)
+		printf("parse : %s -> %s %s\n", $$->name, $1->name, $1->next == NULL ? "" : $1->next->name);
+}
+		|{
+	$$ = NULL;
+}
 ;
-StructSpecifier : STRUCT OptTag LC DefList RC
-		| STRUCT Tag
+Def : Specifier DecList SEMI{
+	$$ = (node*)newNode(-1, "Def", NULL);
+	addChild(4, $$, $1, $2, $3);
+	if(debug)
+		printf("parse : %s -> %s %s %s\n", $$->name, $1->name, $1->next->name, $2->next->name);
+}
 ;
-OptTag : ID
-	| 
+DecList : Dec 	%prec LOWER_THAN_COMMA{
+	$$ = (node*)newNode(-1, "DecList", NULL);
+	addChild(2, $$, $1);
+	if(debug)
+		printf("parse : %s -> %s\n", $$->name, $1->name);
+}
+		| Dec COMMA DecList{
+	$$ = (node*)newNode(-1, "DecList", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
 ;
-Tag : ID
-;
-
-
-VarDec : ID
-		| VarDec LB INT RB
-;
-FunDec : ID LP VarList RP
-		| ID LP RP
-;
-VarList : ParamDec COMMA VarList
-		| ParamDec
-;
-ParamDec : Specifier VarDec
-;
-
-
-CompSt : LC DefList StmtList RC
-;
-StmtList : Stmt StmtList
-		| 
-;
-Stmt : Exp SEMI
-		| CompSt
-		| RETURN Exp SEMI
-		| IF LP Exp RP Stmt    %prec LOWER_THAN_ELSE
-		| IF LP Exp RP Stmt ELSE Stmt
-		| WHILE LP Exp RP Stmt
-;
-
-
-
-DefList : Def DefList
-		|
-;
-Def : Specifier DecList SEMI
-;
-DecList : Dec 					%prec LOWER_THAN_COMMA
-		| Dec COMMA DecList 
-;
-Dec : VarDec
-		| VarDec ASSIGNOP Exp
+Dec : VarDec{
+	$$ = (node*)newNode(-1, "Dec", NULL);
+	addChild(2, $$, $1);
+	if(debug)
+		printf("parse : %s -> %s\n", $$->name, $1->name);
+}
+		| VarDec ASSIGNOP Exp{
+	$$ = (node*)newNode(-1, "Dec", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
 ;
 
 
-Exp : Exp ASSIGNOP Exp
-		| Exp AND Exp
-		| Exp OR Exp
-		| Exp RELOP Exp
-		| Exp PLUS Exp
-		| Exp MINUS Exp
-		| Exp STAR Exp
-		| Exp DIV Exp
-		| LP Exp RP
-		| MINUS Exp
-		| NOT Exp
-		| ID LP Args RP
-		| ID LP RP
-		| Exp LB Exp RB
-		| Exp DOT ID
-		| Exp INT   	// new
-		| Exp FLOAT 	// new 
-		| ID
-		| INT
-		| FLOAT
+Exp : Exp ASSIGNOP Exp{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| Exp AND Exp{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);		
+}
+		| Exp OR Exp{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| Exp RELOP Exp{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| Exp PLUS Exp{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| Exp MINUS Exp{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| Exp STAR Exp{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| Exp DIV Exp{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| LP Exp RP{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| MINUS Exp{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(3, $$, $1, $2);
+}
+		| NOT Exp{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(3, $$, $1, $2);
+}
+		| ID LP Args RP{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(5, $$, $1, $2, $3, $4);
+}
+		| ID LP RP{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| Exp LB Exp RB{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(5, $$, $1, $2, $3, $4);
+}
+		| Exp DOT ID{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| Exp INT{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(3, $$, $1, $2);
+}
+		| Exp FLOAT{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(3, $$, $1, $2);
+}
+		| ID{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(2, $$, $1);
+}
+		| INT{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(2, $$, $1);
+}
+		| FLOAT{
+	$$ = (node*)newNode(-1, "Exp", NULL);
+	addChild(2, $$, $1);
+}
 ;
 
-Args : Exp COMMA Args
-		| Exp
+Args : Exp COMMA Args{
+	$$ = (node*)newNode(-1, "Args", NULL);
+	addChild(4, $$, $1, $2, $3);
+}
+		| Exp{
+	$$ = (node*)newNode(-1, "Args", NULL);
+	addChild(2, $$, $1);	
+}
 ;
 
 %%

@@ -1,10 +1,5 @@
-struct node
+int inc()
 {
-	int left;
-};
-int main()
-{
-	int a = 2;
-	float b = 2.3;
-	return 0;
+	int i;
+	i = i + 1;
 }
