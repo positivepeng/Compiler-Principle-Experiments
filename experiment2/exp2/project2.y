@@ -7,6 +7,7 @@
 	extern int yyparse();
 	extern FILE* yyin;
 	int debug = 0;
+	int haserror = 0;
 	void yyerror(const char* s);
 %}
 
@@ -43,7 +44,8 @@ Program : ExtDefList {
 	addChild(2, $$, $1);
 	if(debug)
 		printf("parse : %s -> %s\n", $$->name, $1->name);	
-	dfsTraverse(0, $$);
+	if(haserror == 0)
+		dfsTraverse(0, $$);
 }
 ;
 ExtDefList : ExtDef ExtDefList{
@@ -198,8 +200,6 @@ Stmt : Exp SEMI{
 	addChild(6, $$, $1, $2, $3, $4, $5);
 }
 ;
-
-
 
 DefList : Def DefList{
 	$$ = (node*)newNode(-1, "DefList", NULL);

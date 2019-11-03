@@ -12,6 +12,8 @@ void printNode(int numOfTab, node* p){
 		printf("%s:%f\n", p->name, p->val.fval);
 	else if(p->tokenType == TYPE)
 		printf("%s:%s\n", p->name, p->val.sval);
+	else if(p->tokenType < 0)
+		printf("%s (%d)\n", p->name, p->lineNum);
 	else
 		printf("%s\n", p->name);
 }
@@ -22,6 +24,8 @@ void addChild(int numOfChild, ...){
     node* root = va_arg(valist, node*);
     node* child1 = va_arg(valist, node*);
     root->childs = child1;
+    root->colNum = child1->colNum;
+    root->lineNum = child1->lineNum;
     for(int i = 2;i < numOfChild; i++){
     	node* temp = va_arg(valist, node*);
     	child1->next = temp;
