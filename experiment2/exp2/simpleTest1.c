@@ -1,4 +1,0 @@
-struct inx
-{
-	int a;	
-};
