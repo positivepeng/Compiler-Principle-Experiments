@@ -6,6 +6,7 @@
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
+	extern int yylineno;
 	int debug = 0;
 	int haserror = 0;
 	void yyerror(const char* s);
@@ -44,8 +45,7 @@ Program : ExtDefList {
 	addChild(2, $$, $1);
 	if(debug)
 		printf("parse : %s -> %s\n", $$->name, $1->name);	
-	if(haserror == 0)
-		dfsTraverse(0, $$);
+	dfsTraverse(0, $$);
 }
 ;
 ExtDefList : ExtDef ExtDefList{
@@ -55,7 +55,7 @@ ExtDefList : ExtDef ExtDefList{
 		printf("parse : %s -> %s %s\n", $$->name, $$->childs->name, $1->next == NULL ? "" : $1->next->name);
 }
 		| {
-	$$ = NULL;
+	$$ = (node*)newNode(-1, "ExtDefList", NULL);
 }
 ;
 ExtDef : Specifier ExtDecList SEMI{
@@ -72,6 +72,13 @@ ExtDef : Specifier ExtDecList SEMI{
 	$$ = (node*)newNode(-1, "ExtDef", NULL);
 	addChild(4, $$, $1, $2, $3);
 }
+// 		| Specifier{
+// 	$$ = (node*)newNode(-1, "ExtDef", NULL);
+// 	addChild(3, $$, $1, $2);
+// 	printf("Recovering From Error: Expected \';\';\n");
+// 	if(debug)
+// 		printf("parse : %s -> %s %s\n", $$->name, $$->childs->name, $1->next->name);
+// }
 ;
 ExtDecList : VarDec{
 	$$ = (node*) newNode(-1, "ExtDecList", NULL);
@@ -114,7 +121,7 @@ OptTag : ID{
 		printf("parse : %s -> %s\n", $$->name, $1->name);
 }
 		|{
-	$$ = NULL;
+	$$ = (node*)newNode(-1, "OptTag", NULL);
 }
 ;
 Tag : ID{
@@ -172,7 +179,7 @@ StmtList : Stmt StmtList{
 	addChild(3, $$, $1, $2);	
 }
 		|{
-	$$ = NULL;
+	$$ = (node*)newNode(-1, "StmtList", NULL);
 }
 ;
 Stmt : Exp SEMI{
@@ -208,7 +215,7 @@ DefList : Def DefList{
 		printf("parse : %s -> %s %s\n", $$->name, $1->name, $1->next == NULL ? "" : $1->next->name);
 }
 		|{
-	$$ = NULL;
+	$$ = (node*)newNode(-1, "DefList", NULL);
 }
 ;
 Def : Specifier DecList SEMI{
@@ -345,12 +352,13 @@ int main(int argc, char** argv) {
 		}
 	}
 
+	yydebug = 0;
+
 	yyparse();
 	
 	return 0;
 }
 
 void yyerror(const char* s) {
-	fprintf(stderr, "Parse error: %s\n", s);
-	exit(1);
+	fprintf(stderr, "Parse error as line %d, near token: %s, message info: %s\n", yylineno, yylval.npval->name, s);
 }

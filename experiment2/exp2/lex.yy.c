@@ -1116,7 +1116,7 @@ YY_RULE_SETUP
 case 32:
 YY_RULE_SETUP
 #line 170 "project2.l"
-{printf("undefined character %c\n",yytext[0]);}
+{printf("undefined character %c\n",yytext[0]); exit(1);}
 	YY_BREAK
 case 33:
 YY_RULE_SETUP

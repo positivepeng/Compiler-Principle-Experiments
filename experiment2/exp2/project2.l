@@ -167,6 +167,6 @@
 	return RC;
 }
 
-. {printf("undefined character %c\n",yytext[0]);}
+. {printf("undefined character %c\n",yytext[0]); exit(1);}
 
 %%

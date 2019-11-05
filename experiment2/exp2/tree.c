@@ -28,6 +28,10 @@ void addChild(int numOfChild, ...){
     root->lineNum = child1->lineNum;
     for(int i = 2;i < numOfChild; i++){
     	node* temp = va_arg(valist, node*);
+    	if(temp != NULL){
+    		temp->colNum = root->colNum;
+    		temp->lineNum = root->lineNum;	
+    	}
     	child1->next = temp;
     	child1 = temp;
     }
