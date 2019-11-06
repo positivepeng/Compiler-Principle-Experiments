@@ -1,5 +1,6 @@
+// 错误检测 不合法的Definition
 int main()
 {
-	int a = a + b * c - 3;
+	int a, 2b;
 	return 0;
 }

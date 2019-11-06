@@ -82,7 +82,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 15 "project2.y" /* yacc.c:1909  */
+#line 16 "project2.y" /* yacc.c:1909  */
 
 	struct NODE* npval;
 

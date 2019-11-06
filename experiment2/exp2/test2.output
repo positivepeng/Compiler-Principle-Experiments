@@ -1,0 +1,365 @@
+Comment:// 包含所有语法规则的测试用例
+Program (2)
+  ExtDefList (2)
+    ExtDef (2)
+      Specifier (2)
+        TYPE:int
+      ExtDecList (2)
+        VarDec (2)
+          ID:global_a
+        COMMA
+        ExtDecList (2)
+          VarDec (2)
+            ID:global_b
+      SEMI
+    ExtDefList (3)
+      ExtDef (3)
+        Specifier (3)
+          TYPE:int
+        ExtDecList (3)
+          VarDec (3)
+            ID:global_c
+        SEMI
+      ExtDefList (4)
+        ExtDef (4)
+          Specifier (4)
+            TYPE:int
+          SEMI
+        ExtDefList (5)
+          ExtDef (5)
+            Specifier (5)
+              StructSpecifier (5)
+                STRUCT
+                Tag (5)
+                  ID:node1
+            SEMI
+          ExtDefList (6)
+            ExtDef (6)
+              Specifier (6)
+                StructSpecifier (6)
+                  STRUCT
+                  OptTag (6)
+                    ID:node2
+                  LC
+                  DefList (6)
+                    Def (6)
+                      Specifier (6)
+                        TYPE:int
+                      DecList (6)
+                        Dec (6)
+                          VarDec (6)
+                            ID:left
+                        COMMA
+                        DecList (6)
+                          Dec (6)
+                            VarDec (6)
+                              ID:right
+                      SEMI
+                  RC
+              SEMI
+            ExtDefList (7)
+              ExtDef (7)
+                Specifier (7)
+                  StructSpecifier (7)
+                    STRUCT
+                    LC
+                    DefList (7)
+                      Def (7)
+                        Specifier (7)
+                          TYPE:int
+                        DecList (7)
+                          Dec (7)
+                            VarDec (7)
+                              ID:left
+                          COMMA
+                          DecList (7)
+                            Dec (7)
+                              VarDec (7)
+                                ID:right
+                        SEMI
+                    RC
+                SEMI
+              ExtDefList (10)
+                ExtDef (10)
+                  Specifier (10)
+                    TYPE:int
+                  FunDec (10)
+                    ID:main1
+                    LP
+                    RP
+                  CompSt (10)
+                    LC
+                    RC
+                ExtDefList (12)
+                  ExtDef (12)
+                    Specifier (12)
+                      TYPE:int
+                    FunDec (12)
+                      ID:main2
+                      LP
+                      VarList (12)
+                        ParamDec (12)
+                          Specifier (12)
+                            TYPE:int
+                          VarDec (12)
+                            ID:argc1
+                        COMMA
+                        VarList (12)
+                          ParamDec (12)
+                            Specifier (12)
+                              StructSpecifier (12)
+                                STRUCT
+                                Tag (12)
+                                  ID:node1
+                            VarDec (12)
+                              VarDec (12)
+                                ID:argc2
+                              LB
+                              INT:2
+                              RB
+                      RP
+                    CompSt (13)
+                      LC
+                      DefList (14)
+                        Def (14)
+                          Specifier (14)
+                            TYPE:int
+                          DecList (14)
+                            Dec (14)
+                              VarDec (14)
+                                ID:a
+                              ASSIGNOP
+                              Exp (14)
+                                INT:2
+                            COMMA
+                            DecList (14)
+                              Dec (14)
+                                VarDec (14)
+                                  VarDec (14)
+                                    ID:b
+                                  LB
+                                  INT:10
+                                  RB
+                          SEMI
+                        DefList (15)
+                          Def (15)
+                            Specifier (15)
+                              TYPE:float
+                            DecList (15)
+                              Dec (15)
+                                VarDec (15)
+                                  ID:c
+                              COMMA
+                              DecList (15)
+                                Dec (15)
+                                  VarDec (15)
+                                    ID:d
+                                COMMA
+                                DecList (15)
+                                  Dec (15)
+                                    VarDec (15)
+                                      ID:e
+                                  COMMA
+                                  DecList (15)
+                                    Dec (15)
+                                      VarDec (15)
+                                        VarDec (15)
+                                          VarDec (15)
+                                            ID:f
+                                          LB
+                                          INT:23
+                                          RB
+                                        LB
+                                        INT:0
+                                        RB
+                            SEMI
+                          DefList (16)
+                            Def (16)
+                              Specifier (16)
+                                TYPE:int
+                              DecList (16)
+                                Dec (16)
+                                  VarDec (16)
+                                    ID:g
+                              SEMI
+                            DefList (16)
+                              Def (16)
+                                Specifier (16)
+                                  TYPE:int
+                                DecList (16)
+                                  Dec (16)
+                                    VarDec (16)
+                                      ID:h
+                                SEMI
+                              DefList (17)
+                                Def (17)
+                                  Specifier (17)
+                                    StructSpecifier (17)
+                                      STRUCT
+                                      Tag (17)
+                                        ID:node1
+                                  DecList (17)
+                                    Dec (17)
+                                      VarDec (17)
+                                        ID:a
+                                  SEMI
+                      StmtList (18)
+                        Stmt (18)
+                          Exp (18)
+                            Exp (18)
+                              Exp (18)
+                                ID:a
+                              DOT
+                              ID:left
+                            ASSIGNOP
+                            Exp (18)
+                              INT:43
+                          SEMI
+                        StmtList (19)
+                          Stmt (19)
+                            Exp (19)
+                              Exp (19)
+                                ID:a
+                              ASSIGNOP
+                              Exp (19)
+                                Exp (19)
+                                  ID:a
+                                PLUS
+                                Exp (19)
+                                  INT:-2
+                            SEMI
+                          StmtList (21)
+                            Stmt (21)
+                              CompSt (21)
+                                LC
+                                DefList (22)
+                                  Def (22)
+                                    Specifier (22)
+                                      TYPE:int
+                                    DecList (22)
+                                      Dec (22)
+                                        VarDec (22)
+                                          ID:a
+                                        ASSIGNOP
+                                        Exp (22)
+                                          INT:2
+                                      COMMA
+                                      DecList (22)
+                                        Dec (22)
+                                          VarDec (22)
+                                            VarDec (22)
+                                              ID:b
+                                            LB
+                                            INT:4
+                                            RB
+                                    SEMI
+                                RC
+                            StmtList (25)
+                              Stmt (25)
+                                IF
+                                LP
+                                Exp (25)
+                                  Exp (25)
+                                    ID:a
+                                  RELOP
+                                  Exp (25)
+                                    INT:3
+                                RP
+                                Stmt (26)
+                                  CompSt (26)
+                                    LC
+                                    StmtList (27)
+                                      Stmt (27)
+                                        Exp (27)
+                                          Exp (27)
+                                            ID:a
+                                          ASSIGNOP
+                                          Exp (27)
+                                            Exp (27)
+                                              ID:a
+                                            PLUS
+                                            Exp (27)
+                                              INT:3
+                                        SEMI
+                                    RC
+                                ELSE
+                                Stmt (30)
+                                  CompSt (30)
+                                    LC
+                                    StmtList (31)
+                                      Stmt (31)
+                                        Exp (31)
+                                          Exp (31)
+                                            ID:a
+                                          ASSIGNOP
+                                          Exp (31)
+                                            INT:3
+                                        SEMI
+                                    RC
+                              StmtList (34)
+                                Stmt (34)
+                                  IF
+                                  LP
+                                  Exp (34)
+                                    Exp (34)
+                                      ID:a
+                                    RELOP
+                                    Exp (34)
+                                      INT:3
+                                  RP
+                                  Stmt (35)
+                                    CompSt (35)
+                                      LC
+                                      StmtList (36)
+                                        Stmt (36)
+                                          Exp (36)
+                                            Exp (36)
+                                              ID:a
+                                            ASSIGNOP
+                                            Exp (36)
+                                              Exp (36)
+                                                ID:a
+                                              PLUS
+                                              Exp (36)
+                                                INT:1
+                                          SEMI
+                                      RC
+                                StmtList (39)
+                                  Stmt (39)
+                                    WHILE
+                                    LP
+                                    Exp (39)
+                                      Exp (39)
+                                        ID:a
+                                      RELOP
+                                      Exp (39)
+                                        INT:3
+                                    RP
+                                    Stmt (40)
+                                      CompSt (40)
+                                        LC
+                                        StmtList (41)
+                                          Stmt (41)
+                                            Exp (41)
+                                              Exp (41)
+                                                ID:a
+                                              ASSIGNOP
+                                              Exp (41)
+                                                Exp (41)
+                                                  ID:a
+                                                PLUS
+                                                Exp (41)
+                                                  INT:1
+                                            SEMI
+                                        RC
+                                  StmtList (44)
+                                    Stmt (44)
+                                      RETURN
+                                      Exp (44)
+                                        Exp (44)
+                                          ID:a
+                                        MINUS
+                                        Exp (44)
+                                          INT:2
+                                      SEMI
+                      RC

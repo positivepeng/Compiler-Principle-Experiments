@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include "project2.tab.h"
 #define NONTERMINAL -1
+#define EMPTYNODETOKEN -2
 
 union VAL{
 	int ival;
@@ -14,11 +15,11 @@ union VAL{
 
 struct NODE
 {
-	int lineNum, colNum;
+	int lineBegin, lineEnd;
 	int tokenType;
 	union VAL val;
 	char* name;
-	struct NODE* childs, *next, *par;
+	struct NODE* childs, *next;
 };
 
 typedef struct NODE node;

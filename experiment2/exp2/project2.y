@@ -3,6 +3,7 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include "tree.h"
+	#define EMPTYNODETOKEN -2
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
@@ -38,6 +39,12 @@
 %nonassoc LOWER_THAN_COMMA
 %nonassoc COMMA
 
+%left ASSIGNOP
+%left STAR DIV PLUS MINUS RELOP
+%right NOT
+%left LC RC LP RP
+
+
 %%
 
 Program : ExtDefList {
@@ -55,7 +62,7 @@ ExtDefList : ExtDef ExtDefList{
 		printf("parse : %s -> %s %s\n", $$->name, $$->childs->name, $1->next == NULL ? "" : $1->next->name);
 }
 		| {
-	$$ = (node*)newNode(-1, "ExtDefList", NULL);
+	$$ = (node*)newNode(EMPTYNODETOKEN, "ExtDefList", NULL);
 }
 ;
 ExtDef : Specifier ExtDecList SEMI{
@@ -72,13 +79,14 @@ ExtDef : Specifier ExtDecList SEMI{
 	$$ = (node*)newNode(-1, "ExtDef", NULL);
 	addChild(4, $$, $1, $2, $3);
 }
-// 		| Specifier{
-// 	$$ = (node*)newNode(-1, "ExtDef", NULL);
-// 	addChild(3, $$, $1, $2);
-// 	printf("Recovering From Error: Expected \';\';\n");
-// 	if(debug)
-// 		printf("parse : %s -> %s %s\n", $$->name, $$->childs->name, $1->next->name);
-// }
+		| Specifier{
+	$$ = (node*)newNode(-1, "ExtDef", NULL);
+	node* newSEMI = (node*)newNode(SEMI, "SEMI", NULL);
+	addChild(3, $$, $1, newSEMI);
+	printf("Recovering From Error: Expected \';\' .\n");
+	if(debug)
+		printf("parse : %s -> %s %s\n", $$->name, $$->childs->name, $1->next->name);
+}
 ;
 ExtDecList : VarDec{
 	$$ = (node*) newNode(-1, "ExtDecList", NULL);
@@ -121,7 +129,7 @@ OptTag : ID{
 		printf("parse : %s -> %s\n", $$->name, $1->name);
 }
 		|{
-	$$ = (node*)newNode(-1, "OptTag", NULL);
+	$$ = (node*)newNode(EMPTYNODETOKEN, "OptTag", NULL);
 }
 ;
 Tag : ID{
@@ -179,7 +187,7 @@ StmtList : Stmt StmtList{
 	addChild(3, $$, $1, $2);	
 }
 		|{
-	$$ = (node*)newNode(-1, "StmtList", NULL);
+	$$ = (node*)newNode(EMPTYNODETOKEN, "StmtList", NULL);
 }
 ;
 Stmt : Exp SEMI{
@@ -205,6 +213,10 @@ Stmt : Exp SEMI{
 		| WHILE LP Exp RP Stmt{
 	$$ = (node*)newNode(-1, "Stmt", NULL);
 	addChild(6, $$, $1, $2, $3, $4, $5);
+}	
+		| error SEMI{
+	printf("Invalid Statement\n");
+	exit(1);
 }
 ;
 
@@ -215,7 +227,7 @@ DefList : Def DefList{
 		printf("parse : %s -> %s %s\n", $$->name, $1->name, $1->next == NULL ? "" : $1->next->name);
 }
 		|{
-	$$ = (node*)newNode(-1, "DefList", NULL);
+	$$ = (node*)newNode(EMPTYNODETOKEN, "DefList", NULL);
 }
 ;
 Def : Specifier DecList SEMI{
@@ -223,6 +235,9 @@ Def : Specifier DecList SEMI{
 	addChild(4, $$, $1, $2, $3);
 	if(debug)
 		printf("parse : %s -> %s %s %s\n", $$->name, $1->name, $1->next->name, $2->next->name);
+}		| error SEMI{
+	printf("Invalid Definition\n");
+	exit(1);
 }
 ;
 DecList : Dec 	%prec LOWER_THAN_COMMA{
@@ -360,5 +375,6 @@ int main(int argc, char** argv) {
 }
 
 void yyerror(const char* s) {
-	fprintf(stderr, "Parse error as line %d, near token: %s, message info: %s\n", yylineno, yylval.npval->name, s);
+	fprintf(stderr, "Parse error at line %d, near token: %s\n", yylineno, yylval.npval->name);
+	printf("Detail error message: ");
 }

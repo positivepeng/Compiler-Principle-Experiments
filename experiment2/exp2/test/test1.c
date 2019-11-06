@@ -1,5 +1,5 @@
+// 简单测试用例
 int inc()
 {
-	int i = 1;
-	i = i + 1;
+	int i = a * b - c;
 }

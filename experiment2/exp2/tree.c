@@ -2,6 +2,9 @@
 
 void printNode(int numOfTab, node* p){
 	// printf("%d %s\n", numOfTab, p->name);
+	if(p->tokenType == EMPTYNODETOKEN)
+		return ;
+
 	while(numOfTab--)
 		printf("  ");
 	if(p->tokenType == ID)
@@ -13,45 +16,13 @@ void printNode(int numOfTab, node* p){
 	else if(p->tokenType == TYPE)
 		printf("%s:%s\n", p->name, p->val.sval);
 	else if(p->tokenType < 0)
-		printf("%s (%d)\n", p->name, p->lineNum);
+		printf("%s (%d)\n", p->name, p->lineBegin);
 	else
 		printf("%s\n", p->name);
 }
-
-void addChild(int numOfChild, ...){
-	va_list valist;
-    va_start(valist, numOfChild);
-    node* root = va_arg(valist, node*);
-    node* child1 = va_arg(valist, node*);
-    root->childs = child1;
-    root->colNum = child1->colNum;
-    root->lineNum = child1->lineNum;
-    for(int i = 2;i < numOfChild; i++){
-    	node* temp = va_arg(valist, node*);
-    	if(temp != NULL){
-    		temp->colNum = root->colNum;
-    		temp->lineNum = root->lineNum;	
-    	}
-    	child1->next = temp;
-    	child1 = temp;
-    }
-   	va_end(valist);
-   	return ;
-}
-
 void dfsTraverse(int numOfTab, node* root){
 	// printf("%d %s\n", numOfTab, root->name);
 	printNode(numOfTab, root);
-
-	// node* temp = root->childs;
-	// if(temp != NULL){
-	// 	printf("%s  childs: ", root->name);
-	// 	while(temp != NULL){
-	// 		printf("%s ", temp->name);
-	// 		temp = temp->next;
-	// 	}
-	// 	printf("\n");		
-	// }
 
 	if(root->childs != NULL){
 		// dfsTraverse(numOfTab+1, root->childs);
@@ -60,33 +31,49 @@ void dfsTraverse(int numOfTab, node* root){
 			dfsTraverse(numOfTab+1, sibling);
 			sibling = sibling->next;
 		}		
-	}
-	// else{
-	// 	node* sibling = root->next;
-	// 	while(sibling != NULL){
-	// 		dfsTraverse(numOfTab, sibling);
-	// 		sibling = sibling->next;
-	// 	}	
-	// }
-	
+	}	
 }
+
+void addChild(int numOfChild, ...){
+	va_list valist;
+    va_start(valist, numOfChild);
+    node* root = va_arg(valist, node*);
+    node* child1 = va_arg(valist, node*);
+
+    root->childs = child1;
+	
+	
+	root->lineBegin = child1->lineBegin;
+	root->lineEnd = child1->lineEnd;
+
+	for(int i = 2;i < numOfChild; i++){
+    	node* temp = va_arg(valist, node*);
+    	if(temp != NULL){
+    		root->lineEnd = temp->lineEnd;
+    	}
+    	child1->next = temp;
+    	child1 = temp;
+    }
+   	va_end(valist);
+   	return ;
+}
+
+
 
 node* newNode(int tokenType, char* text, struct YYLTYPE* loc){
 	node* p = (node*)malloc(sizeof(node));
 	
 	if(loc != NULL){
-		p->lineNum = loc->first_line;
-		p->colNum = loc->first_column;
+		p->lineBegin = p->lineEnd = loc->first_line;
 	}
 	else{
-		p->lineNum = -1;
-		p->colNum = -1;	
+		p->lineBegin = p->lineEnd = -1;
 	}
 	
 	p->tokenType = tokenType;
 	p->val.ival = -1;
 	p->name = NULL;
-	p->childs = p->next = p->par = NULL;
+	p->childs = p->next = NULL;
 
 	if(tokenType == NONTERMINAL){
 		p->name = (char*)malloc(strlen(text)+1);
