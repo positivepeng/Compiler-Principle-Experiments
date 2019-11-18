@@ -7,6 +7,7 @@ void printNode(int numOfTab, node* p){
 
 	while(numOfTab--)
 		printf("  ");
+	printf("%d ", p->tokenType);
 	if(p->tokenType == ID)
 		printf("%s:%s\n", p->name, p->val.sval);
 	else if(p->tokenType == INT)

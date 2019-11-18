@@ -2,8 +2,7 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
-	#include "tree.h"
-	#include "sematic_analysis.h"
+	#include "symbol.h"
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
@@ -371,8 +370,11 @@ int main(int argc, char** argv) {
 	// dfs输出语法树
 	dfsTraverse(0, root);
 
+	// 将符号存入符号表
+	saveSymbol2table(root, &symTable);
+
 	// 输出符号表
-	printOutTable(&symTable);
+	// printOutTable(&symTable);
 
 	return 0;
 }

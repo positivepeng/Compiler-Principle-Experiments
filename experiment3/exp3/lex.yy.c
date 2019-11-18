@@ -543,8 +543,8 @@ char *yytext;
 #line 1 "project3.l"
 #line 5 "project3.l"
 	#include <stdio.h>
-	#include "tree.c"
 	#include "project3.tab.h"
+	#include "symbol.h"
 	#define YY_DECL int yylex()
 
 	int output = 0;
