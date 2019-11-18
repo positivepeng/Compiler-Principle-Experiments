@@ -1,0 +1,124 @@
+Terminals unused in grammar
+
+   YY
+
+
+Grammar
+
+    0 $accept: slist $end
+
+    1 slist: slist stmt SEMI
+    2      | stmt SEMI
+    3      | error SEMI
+
+    4 stmt: ZZ stmt
+    5     | ZZ
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+error (256) 3
+YY (258)
+ZZ (259) 4 5
+SEMI (260) 1 2 3
+
+
+Nonterminals, with rules where they appear
+
+$accept (6)
+    on left: 0
+slist (7)
+    on left: 1 2 3, on right: 0 1
+stmt (8)
+    on left: 4 5, on right: 1 2 4
+
+
+State 0
+
+    0 $accept: . slist $end
+
+    error  shift, and go to state 1
+    ZZ     shift, and go to state 2
+
+    slist  go to state 3
+    stmt   go to state 4
+
+
+State 1
+
+    3 slist: error . SEMI
+
+    SEMI  shift, and go to state 5
+
+
+State 2
+
+    4 stmt: ZZ . stmt
+    5     | ZZ .
+
+    ZZ  shift, and go to state 2
+
+    $default  reduce using rule 5 (stmt)
+
+    stmt  go to state 6
+
+
+State 3
+
+    0 $accept: slist . $end
+    1 slist: slist . stmt SEMI
+
+    $end  shift, and go to state 7
+    ZZ    shift, and go to state 2
+
+    stmt  go to state 8
+
+
+State 4
+
+    2 slist: stmt . SEMI
+
+    SEMI  shift, and go to state 9
+
+
+State 5
+
+    3 slist: error SEMI .
+
+    $default  reduce using rule 3 (slist)
+
+
+State 6
+
+    4 stmt: ZZ stmt .
+
+    $default  reduce using rule 4 (stmt)
+
+
+State 7
+
+    0 $accept: slist $end .
+
+    $default  accept
+
+
+State 8
+
+    1 slist: slist stmt . SEMI
+
+    SEMI  shift, and go to state 10
+
+
+State 9
+
+    2 slist: stmt SEMI .
+
+    $default  reduce using rule 2 (slist)
+
+
+State 10
+
+    1 slist: slist stmt SEMI .
+
+    $default  reduce using rule 1 (slist)

@@ -3,13 +3,17 @@
 	#include <stdio.h>
 	#include <stdlib.h>
 	#include "tree.h"
-	#define EMPTYNODETOKEN -2
+	#include "sematic_analysis.h"
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
 	extern int yylineno;
+
+	node* root;
 	int debug = 0;
 	int haserror = 0;
+	symbol_table symTable;
+
 	void yyerror(const char* s);
 %}
 
@@ -50,9 +54,9 @@
 Program : ExtDefList {
 	$$ = newNode(-1, "Program", NULL);
 	addChild(2, $$, $1);
+	root = $$;
 	if(debug)
-		printf("parse : %s -> %s\n", $$->name, $1->name);	
-	dfsTraverse(0, $$);
+		printf("parse : %s -> %s\n", $$->name, $1->name);
 }
 ;
 ExtDefList : ExtDef ExtDefList{
@@ -358,10 +362,18 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	yydebug = 0;
-
-	yyparse();
+	// 调试
+	// yydebug = 0;
 	
+	// 解析输入的词法单元
+	yyparse();
+
+	// dfs输出语法树
+	dfsTraverse(0, root);
+
+	// 输出符号表
+	printOutTable(&symTable);
+
 	return 0;
 }
 
