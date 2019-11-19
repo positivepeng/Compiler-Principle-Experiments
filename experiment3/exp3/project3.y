@@ -374,7 +374,7 @@ int main(int argc, char** argv) {
 	saveSymbol2table(root, &symTable);
 
 	// 输出符号表
-	// printOutTable(&symTable);
+	printOutTable(&symTable);
 
 	return 0;
 }

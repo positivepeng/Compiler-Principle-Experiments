@@ -1,5 +1,69 @@
 #include "symbol.h"
 
+symbol* findSymbolInTable(char* name, symbol_table* st);
+
+void parseDec(enum symbol_type typeIn, node* root, symbol_table* st){
+	// 	Dec : 	VarDec
+	//			VarDec ASSIGNOP Exp[INT|FLOAT]
+	//	VarDec : 	ID
+	//				VarDec LB INT RB
+	if(root == NULL)
+		return ;
+	// 添加到符号表
+	node* var = root->childs;
+
+	// 检查变量名是否有效
+	if(findSymbolInTable(var->childs->val.sval, st) != NULL){
+		printf("Error at line %d: Invalid variable name  \'%s\'\n", root->lineBegin, var->childs->val.sval);
+		exit(0);
+	}
+
+	(st->symbols)[st->totalCnt].name = malloc(strlen(var->childs->val.sval)+1);
+	strcpy((st->symbols)[st->totalCnt].name, var->childs->val.sval);
+	(st->symbols)[st->totalCnt].type = typeIn;
+
+	// 存数值
+	if(root->childs->next == NULL){
+		// Dec : 	VarDec[ID]
+		if(typeIn == INTNAME)
+			(st->symbols)[st->totalCnt].val.ival = DEFAULTINT;
+		else if(typeIn == FLOATNAME)
+			(st->symbols)[st->totalCnt].val.fval = DEFAULTFLOAT;
+	}
+	// 添加警告
+	else if(strcmp(root->childs->next->name, "ASSIGNOP") == 0){
+		if(typeIn == INTNAME){
+			if(strcmp(var->next->next->childs->name,"FLOAT") == 0){
+				printf("Waring at line %d : Assign float to int\n", var->next->next->childs->lineBegin);
+				(st->symbols)[st->totalCnt].val.ival = (int)var->next->next->childs->val.fval;
+			}
+			else
+				(st->symbols)[st->totalCnt].val.ival = var->next->next->childs->val.ival;
+		}
+		else if(typeIn == FLOATNAME){
+			if(strcmp(var->next->next->childs->name,"INT") == 0){
+				printf("Waring at line %d : Assign int to float\n", var->next->next->childs->lineBegin);
+				(st->symbols)[st->totalCnt].val.ival = (float)var->next->next->childs->val.ival;
+			}
+			else 
+				(st->symbols)[st->totalCnt].val.fval = var->next->next->childs->val.fval;
+		}
+	}
+	st->totalCnt++;
+}
+
+void parseDecList(enum symbol_type typeIn, node* root, symbol_table* st){
+	// 	DecList :	Dec 
+	// 				Dec COMMA DecList
+	if(root == NULL)
+		return ;
+	parseDec(typeIn, root->childs, st);
+	if(root->childs->next == NULL)
+		return ;
+	else if(strcmp(root->childs->next->name, "COMMA") == 0)
+		parseDecList(typeIn, root->childs->next->next, st);
+}
+
 void saveSymbol2table(node* root, symbol_table* st){
 	if(root == NULL || root->name == NULL)
 		return ;
@@ -9,14 +73,6 @@ void saveSymbol2table(node* root, symbol_table* st){
 	if(strcmp(root->name, "Def") == 0){
 		// 局部变量
 		// 	Def : 		Specifier[TYPE|StructSpecifer[STRUCT]] DecList SEMI
-		// 	DecList :	Dec 
-		// 				Dec COMMA DecList
-		// 	Dec : 	VarDec
-		//			VarDec ASSIGNOP Exp
-		//	VarDec : 	ID
-		//				VarDec LB INT RB
-		printf("Def at : %d\n", root->lineBegin);
-
 		node* spec = root->childs;
 		assert(strcmp(spec->name, "Specifier") == 0);
 
@@ -26,28 +82,42 @@ void saveSymbol2table(node* root, symbol_table* st){
 				type = INTNAME;		
 			else if(strcmp(typeNode->val.sval, "float") == 0)
 				type = FLOATNAME;
+			// DecList
+			node* dec = spec->next->childs;
+			while(dec != NULL){
+				if(strcmp(dec->name, "Dec") == 0){
+					parseDec(type, dec, st);
+				}
+				if(strcmp(dec->name, "DecList") == 0){
+					parseDecList(type, dec, st);
+				}
+				dec = dec->next;
+			}
 		}
-		printf("Def type:%d\n", type);
 	}
-	if(strcmp(root->name, "ExtDef") == 0){
+	else if(strcmp(root->name, "ExtDef") == 0){
 		// 全局变量
 		// ExtDef : Specifier[TYPE|StructSpecifer[STRUCT]] ExtDecList SEMI
 		//			Specifier SEMI
 		// 			Specifier FunDec CompSt
-		printf("ExtDef at: %d\n", root->lineBegin);
+		//printf("ExtDef at: %d\n", root->lineBegin);
 		node* spec = root->childs;
 		assert(strcmp(spec->name, "Specifier") == 0);
 
 		if(strcmp(spec->next->name, "ExtDecList") == 0){
-			// 全局变量
+			// 全局变量  先不考虑数组
+			
 		}
 		else if(strcmp(spec->next->name, "SEMI") == 0){
 			// 结构体，或空
+			type = STRUCTNAME;
 		}
 		else if(strcmp(spec->next->name, "FunDec") == 0){
 			// 函数定义
+			type = FUNCTIONNAME;
+			
 		}
-		printf("ExtDef type: %d\n", type);
+		//printf("ExtDef type: %d %s\n", type, spec->next->name);
 	}
 
 	// 遍历整棵树
@@ -83,6 +153,7 @@ symbol* node2symbol(node* nodein, enum symbol_type type){
 }
 
 void printOutTable(symbol_table* st){
+	printf("PrintOut Symbol Table\n");
 	for(int i = 0;i < st->totalCnt; i++){
 		printf("name : %s type: %d ", (st->symbols)[i].name, (st->symbols)[i].type);
 		if((st->symbols)[i].type == INTNAME)
@@ -94,7 +165,7 @@ void printOutTable(symbol_table* st){
 	}
 }
 
-symbol* find(char* name, symbol_table* st){
+symbol* findSymbolInTable(char* name, symbol_table* st){
 	// 线性查找
 	for(int i = 0;i < st->totalCnt; i++){
 		if(strcmp(name, (st->symbols)[i].name) == 0)
@@ -133,7 +204,7 @@ void test_append_find_printOut(){
 
 	printf("%d\n", st.totalCnt);
 
-	symbol* ans = find("Hello", &st);
+	symbol* ans = findSymbolInTable("Hello", &st);
 
 	if(ans == NULL)
 		printf("not found \n");
