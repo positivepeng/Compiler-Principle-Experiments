@@ -3,8 +3,8 @@ struct struct_name
 	int m;
 };
 int main(){
-	int a = 2, b, kk, kkk = 203;
-	float c, mm = 123;
-	b = 2;
-	c = 3.2;
+	int a = 2 + 1 * 10 / 1 - 1, b, kk, kkk = 203 + 1;
+	float c, mm = 123.2;
+	b = 2 + 1 * 3 / 1 - 1;
+	c = 3.2 + 3.4 * 2.0 / 1.0 - 1.0;
 }

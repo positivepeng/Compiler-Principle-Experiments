@@ -11,6 +11,8 @@ union VAL{
 	int ival;
 	float fval;
 	char* sval;
+	// structInfo* stval;   // 结构体定义包含的信息
+	// funcInfo* funcval;	// 函数定义包含的信息
 };
 
 struct NODE

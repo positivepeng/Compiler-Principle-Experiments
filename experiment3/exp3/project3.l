@@ -111,7 +111,7 @@
 	if(output) printf("STAR\n");
 	return STAR;
 }
-\\ {
+\/ {
 	yylval.npval = newNode(DIV, yytext, &yylloc); 
 	if(output) printf("DIV\n");
 	return DIV;

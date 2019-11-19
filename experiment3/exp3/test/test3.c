@@ -1,5 +1,5 @@
-// 错误恢复用例  结构体定义末尾未加分号
-struct inx
+int main()
 {
-	int a;	
+	int i = 3.8;
+	i = 3.7;
 }

@@ -1,54 +1,56 @@
 #include "symbol.h"
 
 symbol* findSymbolInTable(char* name, symbol_table* st);
+void parseExp(node* exp, symbol_table* st);
 
-void parseDec(enum symbol_type typeIn, node* root, symbol_table* st){
-	// 	Dec : 	VarDec
-	//			VarDec ASSIGNOP Exp[INT|FLOAT]
+void parseVarDec(enum symbol_type typeIn, node* varDec, symbol_table* st){
 	//	VarDec : 	ID
 	//				VarDec LB INT RB
-	if(root == NULL)
-		return ;
-	// 添加到符号表
-	node* var = root->childs;
-
-	// 检查变量名是否有效
-	if(findSymbolInTable(var->childs->val.sval, st) != NULL){
-		printf("Error at line %d: Invalid variable name  \'%s\'\n", root->lineBegin, var->childs->val.sval);
+	//	注意在里面没有将cnt++
+	if(findSymbolInTable(varDec->childs->val.sval, st) != NULL){
+		printf("Error at line %d:  Redefined variable \'%s\'\n", varDec->lineBegin, varDec->childs->val.sval);
 		exit(0);
 	}
-
-	(st->symbols)[st->totalCnt].name = malloc(strlen(var->childs->val.sval)+1);
-	strcpy((st->symbols)[st->totalCnt].name, var->childs->val.sval);
+	(st->symbols)[st->totalCnt].name = malloc(strlen(varDec->childs->val.sval)+1);
+	strcpy((st->symbols)[st->totalCnt].name, varDec->childs->val.sval);
 	(st->symbols)[st->totalCnt].type = typeIn;
+}
 
-	// 存数值
-	if(root->childs->next == NULL){
+void parseDec(enum symbol_type typeIn, node* dec, symbol_table* st){
+	// 	Dec : 	VarDec
+	//			VarDec ASSIGNOP Exp[INT|FLOAT]
+	if(dec == NULL)
+		return ;
+	node* var = dec->childs;
+	parseVarDec(typeIn, var, st);
+
+	if(var->next == NULL){
 		// Dec : 	VarDec[ID]
 		if(typeIn == INTNAME)
 			(st->symbols)[st->totalCnt].val.ival = DEFAULTINT;
 		else if(typeIn == FLOATNAME)
 			(st->symbols)[st->totalCnt].val.fval = DEFAULTFLOAT;
 	}
-	// 添加警告
-	else if(strcmp(root->childs->next->name, "ASSIGNOP") == 0){
+	else if(strcmp(var->next->name, "ASSIGNOP") == 0){
+		// VarDec ASSIGNOP Exp[INT|FLOAT]
+		node* exp = var->next->next;
+		parseExp(exp, st);
 		if(typeIn == INTNAME){
-			if(strcmp(var->next->next->childs->name,"FLOAT") == 0){
-				printf("Waring at line %d : Assign float to int\n", var->next->next->childs->lineBegin);
-				(st->symbols)[st->totalCnt].val.ival = (int)var->next->next->childs->val.fval;
+			if(exp->tokenType != INTNAME){
+				printf("Error at line %d : Type mismatched for assignment\n", exp->childs->lineBegin);
+				exit(0);
 			}
-			else
-				(st->symbols)[st->totalCnt].val.ival = var->next->next->childs->val.ival;
+			(st->symbols)[st->totalCnt].val.ival = exp->val.ival;
 		}
 		else if(typeIn == FLOATNAME){
-			if(strcmp(var->next->next->childs->name,"INT") == 0){
-				printf("Waring at line %d : Assign int to float\n", var->next->next->childs->lineBegin);
-				(st->symbols)[st->totalCnt].val.ival = (float)var->next->next->childs->val.ival;
+			if(exp->tokenType != FLOATNAME){
+				printf("Error at line %d : Type mismatched for assignment\n", exp->childs->lineBegin);
+				exit(0);
 			}
-			else 
-				(st->symbols)[st->totalCnt].val.fval = var->next->next->childs->val.fval;
+			(st->symbols)[st->totalCnt].val.fval = exp->val.fval;
 		}
 	}
+
 	st->totalCnt++;
 }
 
@@ -62,6 +64,183 @@ void parseDecList(enum symbol_type typeIn, node* root, symbol_table* st){
 		return ;
 	else if(strcmp(root->childs->next->name, "COMMA") == 0)
 		parseDecList(typeIn, root->childs->next->next, st);
+}
+
+void parseStruct(enum symbol_type typeIn, node* root, symbol_table* st){
+	// StructSpecifier： 	STRUCT OptTag LC DefList RC
+	// OptTag： 			ID | empty
+	node* optTag = root->next;
+	if(optTag->childs->name == NULL)
+		return ;
+	(st->symbols)[st->totalCnt].name = malloc(strlen(optTag->childs->val.sval)+1);
+	strcpy((st->symbols)[st->totalCnt].name, optTag->childs->val.sval);
+	(st->symbols)[st->totalCnt].type = typeIn;
+	st->totalCnt++;
+}
+
+void parseFuncDec(enum symbol_type typeIn, node* root, symbol_table* st){
+	// FunDec : ID LP VarList RP
+	// 			ID LP RP
+	(st->symbols)[st->totalCnt].name = malloc(strlen(root->childs->val.sval)+1);
+	strcpy((st->symbols)[st->totalCnt].name, root->childs->val.sval);
+	(st->symbols)[st->totalCnt].type = typeIn;
+	st->totalCnt++;
+}
+
+void parseExp(node* exp, symbol_table* st){
+	// exp的tokenType本来为-1,现在用来存exp表达的数据的类型
+	// Exp :	Exp ASSIGNOP Exp
+	// 			Exp AND Exp
+	// 			Exp OR Exp
+	// 			Exp RELOP Exp
+	// 			LP Exp RP
+	// 			MINUS Exp
+	// 			NOT Exp
+	// 			ID LP Args RP
+	// 			ID LP RP
+	// 			Exp LB Exp RB
+	// 			Exp DOT ID
+	if(strcmp(exp->childs->name, "INT") == 0){
+		// 	Exp:	INT
+		exp->tokenType = (int)INTNAME;
+		exp->val.ival = exp->childs->val.ival;
+	}
+	else if(strcmp(exp->childs->name, "FLOAT") == 0){
+		// 	Exp:	FLOAT
+		exp->tokenType = (int)FLOATNAME;
+		exp->val.fval = exp->childs->val.fval;
+	}
+	else if(strcmp(exp->childs->name, "ID") == 0){
+		//	Exp:	ID
+		symbol* sym = findSymbolInTable(exp->childs->val.sval, st);
+		if(sym == NULL){
+			printf("Error at line %d : Undefined variable \'%s\'\n", exp->childs->lineBegin, exp->childs->val.sval);
+			exit(0);
+		}
+		exp->tokenType = (int)sym->type;
+		if(sym->type == INTNAME)
+			exp->val.ival = sym->val.ival;
+		if(sym->type == FLOATNAME)
+			exp->val.fval = sym->val.fval;
+	}
+	else if(strcmp(exp->childs->next->name, "PLUS") == 0){
+		//	Exp:	Exp PLUS Exp
+		node* exp1 = exp->childs, *exp2 = exp->childs->next->next;
+		parseExp(exp1, st);
+		parseExp(exp2, st);
+		if(exp1->tokenType != exp2->tokenType){
+			printf("Error at line %d : Invalid Exp\n", exp->lineBegin);
+			exit(0);
+		}
+		if(exp1->tokenType == (int)INTNAME){
+			exp->tokenType = (int)INTNAME;
+			exp->val.ival = exp1->val.ival + exp2->val.ival;
+		}
+		else if(exp1->tokenType == (int)FLOATNAME){
+			exp->tokenType = (int)FLOATNAME;
+			exp->val.ival = exp1->val.fval + exp2->val.fval;
+		}
+	}
+	else if(strcmp(exp->childs->next->name, "MINUS") == 0){
+		//	Exp:	Exp MINUS Exp
+		node* exp1 = exp->childs, *exp2 = exp->childs->next->next;
+		parseExp(exp1, st);
+		parseExp(exp2, st);
+		if(exp1->tokenType != exp2->tokenType){
+			printf("Error at line %d : Invalid Exp\n", exp->lineBegin);
+			exit(0);
+		}
+		if(exp1->tokenType == (int)INTNAME){
+			exp->tokenType = (int)INTNAME;
+			exp->val.ival = exp1->val.ival - exp2->val.ival;
+		}
+		else if(exp1->tokenType == (int)FLOATNAME){
+			exp->tokenType = (int)FLOATNAME;
+			exp->val.ival = exp1->val.fval - exp2->val.fval;
+		}
+	}
+	else if(strcmp(exp->childs->next->name, "STAR") == 0){
+		//	Exp:	Exp STAR Exp
+		node* exp1 = exp->childs, *exp2 = exp->childs->next->next;
+		parseExp(exp1, st);
+		parseExp(exp2, st);
+		if(exp1->tokenType != exp2->tokenType){
+			printf("Error at line %d : Invalid Exp\n", exp->lineBegin);
+			exit(0);
+		}
+		if(exp1->tokenType == (int)INTNAME){
+			exp->tokenType = (int)INTNAME;
+			exp->val.ival = exp1->val.ival * exp2->val.ival;
+		}
+		else if(exp1->tokenType == (int)FLOATNAME){
+			exp->tokenType = (int)FLOATNAME;
+			exp->val.ival = exp1->val.fval * exp2->val.fval;
+		}
+	}
+	else if(strcmp(exp->childs->next->name, "DIV") == 0){
+		//	Exp:	Exp DIV Exp
+		node* exp1 = exp->childs, *exp2 = exp->childs->next->next;
+		parseExp(exp1, st);
+		parseExp(exp2, st);
+		if(exp1->tokenType != exp2->tokenType){
+			printf("Error at line %d : Invalid Exp\n", exp->lineBegin);
+			exit(0);
+		}
+		if(exp1->tokenType == (int)INTNAME){
+			exp->tokenType = (int)INTNAME;
+			exp->val.ival = exp1->val.ival / exp2->val.ival;
+		}
+		else if(exp1->tokenType == (int)FLOATNAME){
+			exp->tokenType = (int)FLOATNAME;
+			exp->val.ival = exp1->val.fval / exp2->val.fval;
+		}
+	}
+	else if(strcmp(exp->childs->next->name, "ASSIGNOP") == 0){
+		//	Exp:	Exp ASSIGNOP Exp
+		node* exp1 = exp->childs, *exp2 = exp->childs->next->next;
+		parseExp(exp1, st);
+		parseExp(exp2, st);
+
+		exp->tokenType = exp1->tokenType = exp2->tokenType;
+		if(exp2->tokenType == (int)INTNAME){
+			exp->val.ival = exp1->val.ival = exp2->val.ival;
+		}
+		else if(exp2->tokenType == (int)FLOATNAME){
+			exp->val.fval = exp1->val.fval = exp2->val.fval;
+		}
+		
+		if(strcmp(exp1->childs->name, "ID") == 0){
+			symbol* sym = findSymbolInTable(exp1->childs->val.sval, st);
+			if((int)sym->type != exp2->tokenType){
+				printf("Error at line %d : Type mismatched for assignment\n", exp->lineBegin);
+			}
+			if(exp2->tokenType == (int)INTNAME){
+				sym->val.ival = exp1->val.ival;
+			}
+			else if(exp2->tokenType == (int)FLOATNAME){
+				sym->val.fval = exp1->val.fval;
+			}
+		}
+	}
+}
+
+void parseAllExp(node* root, symbol_table* st){
+	// 对所有的exp进行求值
+	if(root == NULL || root->name == NULL)
+		return ;
+
+	if(strcmp(root->name, "Exp") == 0){
+		parseExp(root, st);
+	}
+
+	// 遍历整棵树
+	if(root->childs != NULL){
+		node* sibling = root->childs;
+		while(sibling != NULL){
+			parseAllExp(sibling, st);
+			sibling = sibling->next;
+		}
+	}
 }
 
 void saveSymbol2table(node* root, symbol_table* st){
@@ -100,24 +279,38 @@ void saveSymbol2table(node* root, symbol_table* st){
 		// ExtDef : Specifier[TYPE|StructSpecifer[STRUCT]] ExtDecList SEMI
 		//			Specifier SEMI
 		// 			Specifier FunDec CompSt
-		//printf("ExtDef at: %d\n", root->lineBegin);
 		node* spec = root->childs;
 		assert(strcmp(spec->name, "Specifier") == 0);
 
 		if(strcmp(spec->next->name, "ExtDecList") == 0){
 			// 全局变量  先不考虑数组
-			
+			// ExtDecList	VarDec
+			// 				VarDec COMMA ExtDecList
 		}
 		else if(strcmp(spec->next->name, "SEMI") == 0){
 			// 结构体，或空
-			type = STRUCTNAME;
+			// Specifier： 	TYPE
+			// 				StructSpecifier
+			// StructSpecifier： 	STRUCT OptTag LC DefList RC
+			// 						STRUCT Tag(声明时忽略)
+			// OptTag： 			ID | empty
+			// Tag： ID
+			if(strcmp(spec->childs->name, "StructSpecifier") == 0){
+				type = STRUCTNAME;
+				parseStruct(type, spec->childs->childs, st);
+			}
+			else if(strcmp(spec->childs->name, "TYPE") == 0){
+				printf("Empty Declare!\n");
+			}
+			
 		}
 		else if(strcmp(spec->next->name, "FunDec") == 0){
 			// 函数定义
+			// FunDec : ID LP VarList RP
+			// 			ID LP RP
 			type = FUNCTIONNAME;
-			
+			parseFuncDec(type, spec->next, st);
 		}
-		//printf("ExtDef type: %d %s\n", type, spec->next->name);
 	}
 
 	// 遍历整棵树
@@ -128,28 +321,6 @@ void saveSymbol2table(node* root, symbol_table* st){
 			sibling = sibling->next;
 		}
 	}
-}
-
-
-symbol* node2symbol(node* nodein, enum symbol_type type){
-	symbol* sym = malloc(sizeof(symbol));
-	sym->name = strdup(nodein->name);
-	if(nodein->tokenType == INT){
-		sym->type = INTNAME;
-		sym->val.ival = nodein->val.ival;
-	}
-	else if(nodein->tokenType == FLOAT){
-		sym->type = FLOATNAME;
-		sym->val.fval = nodein->val.fval;	
-	}
-	else{
-		sym->type = UNCLEAR;
-		if(nodein->val.sval != NULL)
-			sym->val.sval = strdup(nodein->val.sval);
-		else
-			sym->val.sval = NULL;	
-	}
-	return sym;
 }
 
 void printOutTable(symbol_table* st){
@@ -173,67 +344,3 @@ symbol* findSymbolInTable(char* name, symbol_table* st){
 	}
 	return NULL;
 }
-
-void append(symbol_table* st, symbol* newsym){
-	// st[st->totalCnt] = newsym;
-	(st->symbols)[st->totalCnt].name = strdup(newsym->name);
-	(st->symbols)[st->totalCnt].type = newsym->type;
-	(st->symbols)[st->totalCnt].val = newsym->val;
-	st->totalCnt++;
-}
-
-void test_append_find_printOut(){
-	symbol_table st;
-	symbol ns1, ns2, ns3;
-
-	ns1.name = strdup("INT");
-	ns1.type = INTNAME;
-	ns1.val.ival = 23;
-
-	ns2.name = strdup("FLOAT");
-	ns2.type = FLOATNAME;
-	ns2.val.fval = 23.3;
-
-	ns3.name = strdup("UNCLEAR");
-	ns3.type = UNCLEAR;
-	ns3.val.sval = NULL;
-
-	append(&st, &ns1);
-	append(&st, &ns2);
-	append(&st, &ns3);
-
-	printf("%d\n", st.totalCnt);
-
-	symbol* ans = findSymbolInTable("Hello", &st);
-
-	if(ans == NULL)
-		printf("not found \n");
-    else
-		printf("%s %d %d\n", ans->name, ans->type, ans->val.ival);
-
-	printOutTable(&st);
-
-	free(ns1.name);
-	free(ns2.name);
-	free(ns3.name);
-}
-
-void test_node2symbol(){
-	node nodein;
-	nodein.name = strdup("hello");
-	nodein.val.ival = 23;
-	nodein.tokenType = ID;
-	nodein.val.sval = NULL;
-	symbol* sym = node2symbol(&nodein, INTNAME);
-	printf("%s %d %s \n", sym->name, sym->type, sym->val.sval);
-	free(sym->name);
-	free(sym);
-}
-
-
-// int main(int argc, char const *argv[])
-// {
-// 	test_append_find_printOut();
-// 	// test_node2symbol();
-// 	return 0;
-// }

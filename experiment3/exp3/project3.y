@@ -43,7 +43,10 @@
 %nonassoc COMMA
 
 %left ASSIGNOP
-%left STAR DIV PLUS MINUS RELOP
+%left AND OR
+%left RELOP
+%left PLUS MINUS 
+%left STAR DIV
 %right NOT
 %left LC RC LP RP
 
@@ -368,13 +371,21 @@ int main(int argc, char** argv) {
 	yyparse();
 
 	// dfs输出语法树
-	dfsTraverse(0, root);
+	// dfsTraverse(0, root);
 
 	// 将符号存入符号表
 	saveSymbol2table(root, &symTable);
 
-	// 输出符号表
 	printOutTable(&symTable);
+
+	parseAllExp(root, &symTable);
+
+	dfsTraverse(0, root);
+
+	printOutTable(&symTable);
+	
+	// 输出符号表
+	
 
 	return 0;
 }

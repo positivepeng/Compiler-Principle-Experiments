@@ -9,17 +9,23 @@ void printNode(int numOfTab, node* p){
 		printf("  ");
 	printf("%d ", p->tokenType);
 	if(p->tokenType == ID)
-		printf("%s:%s\n", p->name, p->val.sval);
+		printf("%s:%s", p->name, p->val.sval);
 	else if(p->tokenType == INT)
-		printf("%s:%i\n", p->name, p->val.ival);
+		printf("%s:%i", p->name, p->val.ival);
 	else if(p->tokenType == FLOAT)
-		printf("%s:%f\n", p->name, p->val.fval);
+		printf("%s:%f", p->name, p->val.fval);
 	else if(p->tokenType == TYPE)
-		printf("%s:%s\n", p->name, p->val.sval);
-	else if(p->tokenType < 0)
-		printf("%s (%d)\n", p->name, p->lineBegin);
+		printf("%s:%s", p->name, p->val.sval);
+	else if(p->tokenType < 0){
+		printf("%s (%d)", p->name, p->lineBegin);
+	}
 	else
-		printf("%s\n", p->name);
+		printf("%s", p->name);
+	if(p->tokenType == 1)
+		printf(" %d", p->val.ival);
+	if(p->tokenType == 2)
+		printf(" %f", p->val.fval);
+	printf("\n");
 }
 void dfsTraverse(int numOfTab, node* root){
 	// printf("%d %s\n", numOfTab, root->name);
