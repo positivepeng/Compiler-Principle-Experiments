@@ -376,13 +376,13 @@ int main(int argc, char** argv) {
 	// 将符号存入符号表
 	saveSymbol2table(root, &symTable);
 
-	printOutTable(&symTable);
+	// printOutTable(&symTable);
 
 	parseAllExp(root, &symTable);
 
-	dfsTraverse(0, root);
+	// dfsTraverse(0, root);
 
-	printOutTable(&symTable);
+	// printOutTable(&symTable);
 	
 	// 输出符号表
 	

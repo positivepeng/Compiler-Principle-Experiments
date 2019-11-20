@@ -1,7 +1,6 @@
 #!/bin/zsh
 DIR=./test
-./parse ./test/test.c
-# for FILE in ${DIR}/*.c; do
-# 	echo "$FILE"
-# 	./parse "$FILE"
-# done
+for FILE in ${DIR}/*.c; do
+	echo "$FILE" 
+	./parse "$FILE"
+done

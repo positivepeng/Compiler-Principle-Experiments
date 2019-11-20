@@ -81,6 +81,11 @@ void parseStruct(enum symbol_type typeIn, node* root, symbol_table* st){
 void parseFuncDec(enum symbol_type typeIn, node* root, symbol_table* st){
 	// FunDec : ID LP VarList RP
 	// 			ID LP RP
+	symbol* sym = findSymbolInTable(root->childs->val.sval, st);
+	if(sym != NULL){
+		printf("Error at line %d:  Redefined function \'%s\'\n", root->childs->lineBegin, root->childs->val.sval);
+		exit(0);
+	}
 	(st->symbols)[st->totalCnt].name = malloc(strlen(root->childs->val.sval)+1);
 	strcpy((st->symbols)[st->totalCnt].name, root->childs->val.sval);
 	(st->symbols)[st->totalCnt].type = typeIn;
@@ -120,8 +125,12 @@ void parseExp(node* exp, symbol_table* st){
 		exp->tokenType = (int)sym->type;
 		if(sym->type == INTNAME)
 			exp->val.ival = sym->val.ival;
-		if(sym->type == FLOATNAME)
+		else if(sym->type == FLOATNAME)
 			exp->val.fval = sym->val.fval;
+		else {
+			printf("Error at line %d : Invalid operand, only int and float are allowed\n", exp->lineBegin);
+			exit(0);
+		}
 	}
 	else if(strcmp(exp->childs->next->name, "PLUS") == 0){
 		//	Exp:	Exp PLUS Exp
@@ -138,7 +147,7 @@ void parseExp(node* exp, symbol_table* st){
 		}
 		else if(exp1->tokenType == (int)FLOATNAME){
 			exp->tokenType = (int)FLOATNAME;
-			exp->val.ival = exp1->val.fval + exp2->val.fval;
+			exp->val.fval = exp1->val.fval + exp2->val.fval;
 		}
 	}
 	else if(strcmp(exp->childs->next->name, "MINUS") == 0){
@@ -156,7 +165,7 @@ void parseExp(node* exp, symbol_table* st){
 		}
 		else if(exp1->tokenType == (int)FLOATNAME){
 			exp->tokenType = (int)FLOATNAME;
-			exp->val.ival = exp1->val.fval - exp2->val.fval;
+			exp->val.fval = exp1->val.fval - exp2->val.fval;
 		}
 	}
 	else if(strcmp(exp->childs->next->name, "STAR") == 0){
@@ -174,7 +183,7 @@ void parseExp(node* exp, symbol_table* st){
 		}
 		else if(exp1->tokenType == (int)FLOATNAME){
 			exp->tokenType = (int)FLOATNAME;
-			exp->val.ival = exp1->val.fval * exp2->val.fval;
+			exp->val.fval = exp1->val.fval * exp2->val.fval;
 		}
 	}
 	else if(strcmp(exp->childs->next->name, "DIV") == 0){
@@ -192,7 +201,7 @@ void parseExp(node* exp, symbol_table* st){
 		}
 		else if(exp1->tokenType == (int)FLOATNAME){
 			exp->tokenType = (int)FLOATNAME;
-			exp->val.ival = exp1->val.fval / exp2->val.fval;
+			exp->val.fval = exp1->val.fval / exp2->val.fval;
 		}
 	}
 	else if(strcmp(exp->childs->next->name, "ASSIGNOP") == 0){
