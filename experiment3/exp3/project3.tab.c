@@ -2302,7 +2302,7 @@ int main(int argc, char** argv) {
 
 	// dfsTraverse(0, root);
 
-	// printOutTable(&symTable);
+	printOutTable(&symTable);
 	
 	// 输出符号表
 	

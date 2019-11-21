@@ -3,58 +3,60 @@
 symbol* findSymbolInTable(char* name, symbol_table* st);
 void parseExp(node* exp, symbol_table* st);
 
-void parseVarDec(enum symbol_type typeIn, node* varDec, symbol_table* st){
+void append2symTable(symbol_type typeIn, char* name, union VAL valIn, symbol_table* st){
+	(st->symbols)[st->totalCnt].name = malloc(strlen(name)+1);
+	strcpy((st->symbols)[st->totalCnt].name, name);
+	(st->symbols)[st->totalCnt].type = typeIn;
+	(st->symbols)[st->totalCnt].val = valIn;
+	st->totalCnt++;
+}
+
+void parseDec(symbol_type typeIn, node* dec, symbol_table* st){
+	// 	Dec : 	VarDec
+	//			VarDec ASSIGNOP Exp[INT|FLOAT]
 	//	VarDec : 	ID
 	//				VarDec LB INT RB
-	//	注意在里面没有将cnt++
+	if(dec == NULL)
+		return ;
+	node* varDec = dec->childs;
 	if(findSymbolInTable(varDec->childs->val.sval, st) != NULL){
 		printf("Error at line %d:  Redefined variable \'%s\'\n", varDec->lineBegin, varDec->childs->val.sval);
 		exit(0);
 	}
-	(st->symbols)[st->totalCnt].name = malloc(strlen(varDec->childs->val.sval)+1);
-	strcpy((st->symbols)[st->totalCnt].name, varDec->childs->val.sval);
-	(st->symbols)[st->totalCnt].type = typeIn;
-}
+	// parseVarDec(typeIn, var, st);
+	union VAL val;
 
-void parseDec(enum symbol_type typeIn, node* dec, symbol_table* st){
-	// 	Dec : 	VarDec
-	//			VarDec ASSIGNOP Exp[INT|FLOAT]
-	if(dec == NULL)
-		return ;
-	node* var = dec->childs;
-	parseVarDec(typeIn, var, st);
-
-	if(var->next == NULL){
+	// st->totalCnt++;
+	if(varDec->next == NULL){
 		// Dec : 	VarDec[ID]
 		if(typeIn == INTNAME)
-			(st->symbols)[st->totalCnt].val.ival = DEFAULTINT;
+			val.ival = DEFAULTINT;
 		else if(typeIn == FLOATNAME)
-			(st->symbols)[st->totalCnt].val.fval = DEFAULTFLOAT;
+			val.fval = DEFAULTFLOAT;
 	}
-	else if(strcmp(var->next->name, "ASSIGNOP") == 0){
+	else if(strcmp(varDec->next->name, "ASSIGNOP") == 0){
 		// VarDec ASSIGNOP Exp[INT|FLOAT]
-		node* exp = var->next->next;
+		node* exp = varDec->next->next;
 		parseExp(exp, st);
 		if(typeIn == INTNAME){
 			if(exp->tokenType != INTNAME){
 				printf("Error at line %d : Type mismatched for assignment\n", exp->childs->lineBegin);
 				exit(0);
 			}
-			(st->symbols)[st->totalCnt].val.ival = exp->val.ival;
+			val.ival = exp->val.ival;
 		}
 		else if(typeIn == FLOATNAME){
 			if(exp->tokenType != FLOATNAME){
 				printf("Error at line %d : Type mismatched for assignment\n", exp->childs->lineBegin);
 				exit(0);
 			}
-			(st->symbols)[st->totalCnt].val.fval = exp->val.fval;
+			val.fval = exp->val.fval;
 		}
 	}
-
-	st->totalCnt++;
+	append2symTable(typeIn, varDec->childs->val.sval, val, st);
 }
 
-void parseDecList(enum symbol_type typeIn, node* root, symbol_table* st){
+void parseDecList(symbol_type typeIn, node* root, symbol_table* st){
 	// 	DecList :	Dec 
 	// 				Dec COMMA DecList
 	if(root == NULL)
@@ -66,19 +68,17 @@ void parseDecList(enum symbol_type typeIn, node* root, symbol_table* st){
 		parseDecList(typeIn, root->childs->next->next, st);
 }
 
-void parseStruct(enum symbol_type typeIn, node* root, symbol_table* st){
+void parseStruct(symbol_type typeIn, node* root, symbol_table* st){
 	// StructSpecifier： 	STRUCT OptTag LC DefList RC
 	// OptTag： 			ID | empty
 	node* optTag = root->next;
 	if(optTag->childs->name == NULL)
 		return ;
-	(st->symbols)[st->totalCnt].name = malloc(strlen(optTag->childs->val.sval)+1);
-	strcpy((st->symbols)[st->totalCnt].name, optTag->childs->val.sval);
-	(st->symbols)[st->totalCnt].type = typeIn;
-	st->totalCnt++;
+	union VAL tempVal;
+	append2symTable(typeIn, optTag->childs->val.sval, tempVal, st);
 }
 
-void parseFuncDec(enum symbol_type typeIn, node* root, symbol_table* st){
+void parseFuncDec(symbol_type typeIn, node* root, symbol_table* st){
 	// FunDec : ID LP VarList RP
 	// 			ID LP RP
 	symbol* sym = findSymbolInTable(root->childs->val.sval, st);
@@ -86,10 +86,8 @@ void parseFuncDec(enum symbol_type typeIn, node* root, symbol_table* st){
 		printf("Error at line %d:  Redefined function \'%s\'\n", root->childs->lineBegin, root->childs->val.sval);
 		exit(0);
 	}
-	(st->symbols)[st->totalCnt].name = malloc(strlen(root->childs->val.sval)+1);
-	strcpy((st->symbols)[st->totalCnt].name, root->childs->val.sval);
-	(st->symbols)[st->totalCnt].type = typeIn;
-	st->totalCnt++;
+	union VAL tempVal;
+	append2symTable(typeIn, root->childs->val.sval, tempVal, st);
 }
 
 void parseExp(node* exp, symbol_table* st){
@@ -256,7 +254,7 @@ void saveSymbol2table(node* root, symbol_table* st){
 	if(root == NULL || root->name == NULL)
 		return ;
 
-	enum symbol_type type;
+	symbol_type type;
 
 	if(strcmp(root->name, "Def") == 0){
 		// 局部变量

@@ -6,15 +6,15 @@
 #define DEFAULTINT 0
 #define DEFAULTFLOAT 0.0
 
-enum symbol_type
+typedef enum
 {
 	INTNAME=1, FLOATNAME, FUNCTIONNAME, STRUCTNAME, INTARRAYNAME, FLOATARRAYNAME, UNCLEAR
-};
+}symbol_type;
 
 typedef struct 
 {
 	char* name;
-	enum symbol_type type;
+	symbol_type type;
 	union VAL val;
 }symbol;
 
