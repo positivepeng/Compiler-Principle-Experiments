@@ -250,6 +250,42 @@ void parseAllExp(node* root, symbol_table* st){
 	}
 }
 
+void parseVarList(node* varList, int* paramCnt, symbol_type* paramType){
+	// VarList : 	ParamDec COMMA VarList
+	// 				ParamDec
+	if(varList == NULL)
+		return ;
+	// ParamDec : Specifier[TYPE] VarDec[ID]
+	paramType[*paramCnt] = strcmp(varList->childs->childs->childs->val.sval, "int") == 0 ? INTNAME : FLOATNAME;
+	(*paramCnt)++;
+	
+	if(varList->childs->next != NULL)
+		parseVarList(varList->childs->next->next, paramCnt, paramType);
+}
+
+void parseDefList(node* defList, int* paramCnt, symbol_type* paramType, char* fieldName[MAXFILEDNUM]){
+	// DefList :  Def DefList
+	// 			| empty
+	// Def : Specifier DecList SEMI
+	// DecList 	:	Dec 
+	// Dec 		: 	VarDec
+	// VarDec 	: 	ID
+	// 结构体内只支持单个变量声明
+	if(defList->tokenType == EMPTYNODETOKEN){
+		return ;
+	}
+	else if(strcmp(defList->childs->name, "Def") == 0){
+		node* spec = defList->childs->childs;
+		paramType[*paramCnt] = strcmp(spec->childs->val.sval, "int") == 0 ? INTNAME : FLOATNAME;
+
+		char* name = spec->next->childs->childs->childs->val.sval;
+		fieldName[*paramCnt] = malloc(strlen(name)+1);
+		strcpy(fieldName[*paramCnt], name);
+		(*paramCnt)++;
+	}
+	parseDefList(defList->childs->next, paramCnt, paramType, fieldName);
+}
+
 void saveSymbol2table(node* root, symbol_table* st){
 	if(root == NULL || root->name == NULL)
 		return ;
@@ -299,12 +335,23 @@ void saveSymbol2table(node* root, symbol_table* st){
 			// Specifier： 	TYPE
 			// 				StructSpecifier
 			// StructSpecifier： 	STRUCT OptTag LC DefList RC
-			// 						STRUCT Tag(声明时忽略)
-			// OptTag： 			ID | empty
-			// Tag： ID
+			// OptTag： 			ID
 			if(strcmp(spec->childs->name, "StructSpecifier") == 0){
 				type = STRUCTNAME;
+				// 将结构体的信息添加到符号表中
 				parseStruct(type, spec->childs->childs, st);
+
+				node* defList = spec->childs->childs->next->next->next;
+
+				// 将结构体的信息加入到符号表中
+				// DefList :  Def DefList
+				// 			| empty
+				// Def : Specifier DecList SEMI
+				// 最新添加的符号就是结构体
+				symbol* sym = &(st->symbols)[st->totalCnt-1];
+				sym->cnt = 0;
+				parseDefList(defList, &(sym->cnt), sym->paramType, sym->fieldName);
+
 			}
 			else if(strcmp(spec->childs->name, "TYPE") == 0){
 				printf("Empty Declare!\n");
@@ -313,10 +360,30 @@ void saveSymbol2table(node* root, symbol_table* st){
 		}
 		else if(strcmp(spec->next->name, "FunDec") == 0){
 			// 函数定义
+			// ExtDef :	Specifier FunDec CompSt
 			// FunDec : ID LP VarList RP
 			// 			ID LP RP
 			type = FUNCTIONNAME;
 			parseFuncDec(type, spec->next, st);
+
+			// 最新添加的符号就是函数
+			symbol* sym = &(st->symbols)[st->totalCnt-1];
+
+			// 初始化
+			sym->cnt = 0;
+			if(strcmp(spec->next->childs->next->next->name, "VarList") == 0){
+				// FunDec : ID LP VarList RP
+				// 默认返回值和参数只有int或者float
+				if(strcmp(spec->childs->val.sval, "int") == 0)
+					sym->returnValType = INTNAME;
+				else if(strcmp(spec->childs->val.sval, "float") == 0)
+					sym->returnValType = FLOATNAME;
+				
+
+				parseVarList(spec->next->childs->next->next, &(sym->cnt), &(sym->paramType));	
+
+				// printf("parse finish: %s %d\n",(st->symbols)[st->totalCnt-1].name ,(st->symbols)[st->totalCnt-1].cnt);
+			}
 		}
 	}
 
@@ -332,14 +399,41 @@ void saveSymbol2table(node* root, symbol_table* st){
 
 void printOutTable(symbol_table* st){
 	printf("PrintOut Symbol Table\n");
+	printf("%8s\t%8s\t%8s\n", "name", "type", "info");
 	for(int i = 0;i < st->totalCnt; i++){
-		printf("name : %s type: %d ", (st->symbols)[i].name, (st->symbols)[i].type);
+		printf("%8s\t", (st->symbols)[i].name);
 		if((st->symbols)[i].type == INTNAME)
-			printf("val : %d\n", (st->symbols)[i].val.ival);
+			printf("%8s\t%8d\n", "int", (st->symbols)[i].val.ival);
 		else if((st->symbols)[i].type == FLOATNAME)
-			printf("val : %f\n", (st->symbols)[i].val.fval);
-		else
-			printf("val : %s\n", (st->symbols)[i].val.sval);
+			printf("%8s\t%8f\n", "float", (st->symbols)[i].val.fval);
+		else if((st->symbols)[i].type == STRUCTNAME){
+			printf("%8s", "struct");
+			printf("\tfield cnt : %d ", (st->symbols)[i].cnt);
+			for(int j = 0;j < (st->symbols)[i].cnt; j++){
+				if(j == 0)
+					printf("(");
+				if(j > 0)
+					printf(",");
+				printf("%s %s", (st->symbols)[i].paramType[j] == INTNAME ? "int" : "float" ,(st->symbols)[i].fieldName[j]);
+				if(j == (st->symbols)[i].cnt-1)
+					printf(")");	
+			}
+			printf("\n");
+		}
+		else if((st->symbols)[i].type == FUNCTIONNAME){
+			printf("%8s", "function");
+			printf("\tparam cnt : %d ", (st->symbols)[i].cnt);
+			for(int j = 0;j < (st->symbols)[i].cnt; j++){
+				if(j == 0)
+					printf("(");
+				if(j > 0)
+					printf(",");
+				printf("%s", (st->symbols)[i].paramType[j] == INTNAME ? "int" : "float");
+				if(j == (st->symbols)[i].cnt-1)
+					printf(")");
+			}
+			printf("\n");
+		}
 	}
 }
 

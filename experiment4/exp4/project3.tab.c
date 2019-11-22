@@ -2303,10 +2303,10 @@ int main(int argc, char** argv) {
 	// dfsTraverse(0, root);
 
 	printOutTable(&symTable);
-
-	freeTreeMemory(root);
-	freeTableMemory(&symTable);
 	
+	// 释放内存	
+	// freeTableMemory(&symTable);
+	// freeTreeMemory(root);
 
 	return 0;
 }

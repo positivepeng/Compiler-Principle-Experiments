@@ -41,6 +41,22 @@ void dfsTraverse(int numOfTab, node* root){
 	}	
 }
 
+void freeTreeMemory(node* root){
+	if(root == NULL)
+		return ;
+	if(root->childs != NULL){
+		node* sibling = root->childs;
+		while(sibling != NULL){
+			freeTreeMemory(sibling);
+			sibling = sibling->next;
+		}		
+	}
+	if(root->tokenType == ID || root->tokenType == TYPE)
+		free(root->val.sval);
+	free(root->name);
+	free(root);
+}
+
 void addChild(int numOfChild, ...){
 	va_list valist;
     va_start(valist, numOfChild);
@@ -65,21 +81,6 @@ void addChild(int numOfChild, ...){
    	return ;
 }
 
-void freeTreeMemory(node* root){
-	if(root == NULL)
-		return ;
-	if(root->childs != NULL){
-		node* sibling = root->childs;
-		while(sibling != NULL){
-			freeTreeMemory(sibling);
-			sibling = sibling->next;
-		}		
-	}
-	if(root->tokenType == ID || root->tokenType == TYPE)
-		free(root->val.sval);
-	free(root->name);
-	free(root);
-}
 
 
 node* newNode(int tokenType, char* text, struct YYLTYPE* loc){
