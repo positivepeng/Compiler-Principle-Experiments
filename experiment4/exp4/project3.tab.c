@@ -66,7 +66,7 @@
 
 	#include <stdio.h>
 	#include <stdlib.h>
-	#include "symbol.h"
+	#include "AScode.h"
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
@@ -76,10 +76,11 @@
 	int debug = 0;
 	int haserror = 0;
 	symbol_table symTable;
+	code_table codeTable;
 
 	void yyerror(const char* s);
 
-#line 83 "project3.tab.c" /* yacc.c:339  */
+#line 84 "project3.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -151,11 +152,11 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 19 "project3.y" /* yacc.c:355  */
+#line 20 "project3.y" /* yacc.c:355  */
 
 	struct NODE* npval;
 
-#line 159 "project3.tab.c" /* yacc.c:355  */
+#line 160 "project3.tab.c" /* yacc.c:355  */
 };
 
 typedef union YYSTYPE YYSTYPE;
@@ -186,7 +187,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 190 "project3.tab.c" /* yacc.c:358  */
+#line 191 "project3.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -488,13 +489,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    56,    56,    64,    70,    74,    78,    84,    88,    97,
-     101,   107,   113,   120,   126,   131,   137,   141,   150,   156,
-     161,   165,   170,   174,   179,   186,   191,   195,   199,   203,
-     207,   211,   215,   219,   223,   229,   235,   239,   244,   249,
-     255,   260,   266,   273,   277,   281,   285,   289,   293,   297,
-     301,   305,   309,   313,   317,   321,   325,   329,   333,   337,
-     341,   347,   351
+       0,    57,    57,    65,    71,    75,    79,    85,    89,    98,
+     102,   108,   114,   121,   127,   132,   138,   142,   151,   157,
+     162,   166,   171,   175,   180,   187,   192,   196,   200,   204,
+     208,   212,   216,   220,   224,   230,   236,   240,   245,   250,
+     256,   261,   267,   274,   278,   282,   286,   290,   294,   298,
+     302,   306,   310,   314,   318,   322,   326,   330,   334,   338,
+     342,   348,   352
 };
 #endif
 
@@ -1461,7 +1462,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 56 "project3.y" /* yacc.c:1646  */
+#line 57 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = newNode(-1, "Program", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
@@ -1469,59 +1470,59 @@ yyreduce:
 	if(debug)
 		printf("parse : %s -> %s\n", (yyval.npval)->name, (yyvsp[0].npval)->name);
 }
-#line 1473 "project3.tab.c" /* yacc.c:1646  */
+#line 1474 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 64 "project3.y" /* yacc.c:1646  */
+#line 65 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "ExtDefList", NULL);
 	addChild(3, (yyval.npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s %s\n", (yyval.npval)->name, (yyval.npval)->childs->name, (yyvsp[-1].npval)->next == NULL ? "" : (yyvsp[-1].npval)->next->name);
 }
-#line 1484 "project3.tab.c" /* yacc.c:1646  */
+#line 1485 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 70 "project3.y" /* yacc.c:1646  */
+#line 71 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(EMPTYNODETOKEN, "ExtDefList", NULL);
 }
-#line 1492 "project3.tab.c" /* yacc.c:1646  */
+#line 1493 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 74 "project3.y" /* yacc.c:1646  */
+#line 75 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*) newNode(-1, "ExtDef", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1501 "project3.tab.c" /* yacc.c:1646  */
+#line 1502 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 78 "project3.y" /* yacc.c:1646  */
+#line 79 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "ExtDef", NULL);
 	addChild(3, (yyval.npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s %s\n", (yyval.npval)->name, (yyval.npval)->childs->name, (yyvsp[-1].npval)->next->name);
 }
-#line 1512 "project3.tab.c" /* yacc.c:1646  */
+#line 1513 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 84 "project3.y" /* yacc.c:1646  */
+#line 85 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "ExtDef", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1521 "project3.tab.c" /* yacc.c:1646  */
+#line 1522 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 88 "project3.y" /* yacc.c:1646  */
+#line 89 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "ExtDef", NULL);
 	node* newSEMI = (node*)newNode(SEMI, "SEMI", NULL);
@@ -1530,514 +1531,514 @@ yyreduce:
 	if(debug)
 		printf("parse : %s -> %s %s\n", (yyval.npval)->name, (yyval.npval)->childs->name, (yyvsp[0].npval)->next->name);
 }
-#line 1534 "project3.tab.c" /* yacc.c:1646  */
+#line 1535 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 97 "project3.y" /* yacc.c:1646  */
+#line 98 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*) newNode(-1, "ExtDecList", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
 }
-#line 1543 "project3.tab.c" /* yacc.c:1646  */
+#line 1544 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 101 "project3.y" /* yacc.c:1646  */
+#line 102 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*) newNode(-1, "ExtDecList", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1552 "project3.tab.c" /* yacc.c:1646  */
+#line 1553 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 107 "project3.y" /* yacc.c:1646  */
+#line 108 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Specifier", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s\n", (yyval.npval)->name, (yyval.npval)->childs->name);
 }
-#line 1563 "project3.tab.c" /* yacc.c:1646  */
+#line 1564 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 113 "project3.y" /* yacc.c:1646  */
+#line 114 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Specifier", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));	
 	if(debug)
 		printf("parse : %s -> %s\n", (yyval.npval)->name, (yyval.npval)->childs->name);
 }
-#line 1574 "project3.tab.c" /* yacc.c:1646  */
+#line 1575 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 120 "project3.y" /* yacc.c:1646  */
+#line 121 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "StructSpecifier", NULL);
 	addChild(6, (yyval.npval), (yyvsp[-4].npval), (yyvsp[-3].npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s %s %s %s %s\n", (yyval.npval)->name, (yyvsp[-4].npval)->name, (yyvsp[-4].npval)->next->name, (yyvsp[-3].npval)->next->name, (yyvsp[-2].npval)->next->name, (yyvsp[-1].npval)->next->name);	
 }
-#line 1585 "project3.tab.c" /* yacc.c:1646  */
+#line 1586 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 126 "project3.y" /* yacc.c:1646  */
+#line 127 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "StructSpecifier", NULL);
 	addChild(3, (yyval.npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1594 "project3.tab.c" /* yacc.c:1646  */
+#line 1595 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 131 "project3.y" /* yacc.c:1646  */
+#line 132 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "OptTag", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s\n", (yyval.npval)->name, (yyvsp[0].npval)->name);
 }
-#line 1605 "project3.tab.c" /* yacc.c:1646  */
+#line 1606 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 137 "project3.y" /* yacc.c:1646  */
+#line 138 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(EMPTYNODETOKEN, "OptTag", NULL);
 }
-#line 1613 "project3.tab.c" /* yacc.c:1646  */
+#line 1614 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 141 "project3.y" /* yacc.c:1646  */
+#line 142 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Tag", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s\n", (yyval.npval)->name, (yyvsp[0].npval)->name);
 }
-#line 1624 "project3.tab.c" /* yacc.c:1646  */
+#line 1625 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 150 "project3.y" /* yacc.c:1646  */
+#line 151 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "VarDec", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s\n", (yyval.npval)->name, (yyvsp[0].npval)->name);
 }
-#line 1635 "project3.tab.c" /* yacc.c:1646  */
+#line 1636 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 156 "project3.y" /* yacc.c:1646  */
+#line 157 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "VarDec", NULL);
 	addChild(5, (yyval.npval), (yyvsp[-3].npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1644 "project3.tab.c" /* yacc.c:1646  */
+#line 1645 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 161 "project3.y" /* yacc.c:1646  */
+#line 162 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "FunDec", NULL);
 	addChild(5, (yyval.npval), (yyvsp[-3].npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1653 "project3.tab.c" /* yacc.c:1646  */
+#line 1654 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 165 "project3.y" /* yacc.c:1646  */
+#line 166 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "FunDec", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1662 "project3.tab.c" /* yacc.c:1646  */
+#line 1663 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 170 "project3.y" /* yacc.c:1646  */
+#line 171 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "VarList", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1671 "project3.tab.c" /* yacc.c:1646  */
+#line 1672 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 174 "project3.y" /* yacc.c:1646  */
+#line 175 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "VarList", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));	
 }
-#line 1680 "project3.tab.c" /* yacc.c:1646  */
+#line 1681 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 179 "project3.y" /* yacc.c:1646  */
+#line 180 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "ParamDec", NULL);
 	addChild(3, (yyval.npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1689 "project3.tab.c" /* yacc.c:1646  */
+#line 1690 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 186 "project3.y" /* yacc.c:1646  */
+#line 187 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "CompSt", NULL);
 	addChild(5, (yyval.npval), (yyvsp[-3].npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1698 "project3.tab.c" /* yacc.c:1646  */
+#line 1699 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
-#line 191 "project3.y" /* yacc.c:1646  */
+#line 192 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "StmtList", NULL);
 	addChild(3, (yyval.npval), (yyvsp[-1].npval), (yyvsp[0].npval));	
 }
-#line 1707 "project3.tab.c" /* yacc.c:1646  */
+#line 1708 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 195 "project3.y" /* yacc.c:1646  */
+#line 196 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(EMPTYNODETOKEN, "StmtList", NULL);
 }
-#line 1715 "project3.tab.c" /* yacc.c:1646  */
+#line 1716 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 28:
-#line 199 "project3.y" /* yacc.c:1646  */
+#line 200 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Stmt", NULL);
 	addChild(3, (yyval.npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1724 "project3.tab.c" /* yacc.c:1646  */
+#line 1725 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 29:
-#line 203 "project3.y" /* yacc.c:1646  */
+#line 204 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Stmt", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));	
 }
-#line 1733 "project3.tab.c" /* yacc.c:1646  */
+#line 1734 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 30:
-#line 207 "project3.y" /* yacc.c:1646  */
+#line 208 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Stmt", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1742 "project3.tab.c" /* yacc.c:1646  */
+#line 1743 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 211 "project3.y" /* yacc.c:1646  */
+#line 212 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Stmt", NULL);
 	addChild(6, (yyval.npval), (yyvsp[-4].npval), (yyvsp[-3].npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1751 "project3.tab.c" /* yacc.c:1646  */
+#line 1752 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 215 "project3.y" /* yacc.c:1646  */
+#line 216 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Stmt", NULL);
 	addChild(8, (yyval.npval), (yyvsp[-6].npval), (yyvsp[-5].npval), (yyvsp[-4].npval), (yyvsp[-3].npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1760 "project3.tab.c" /* yacc.c:1646  */
+#line 1761 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 219 "project3.y" /* yacc.c:1646  */
+#line 220 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Stmt", NULL);
 	addChild(6, (yyval.npval), (yyvsp[-4].npval), (yyvsp[-3].npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1769 "project3.tab.c" /* yacc.c:1646  */
+#line 1770 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 223 "project3.y" /* yacc.c:1646  */
+#line 224 "project3.y" /* yacc.c:1646  */
     {
 	printf("Invalid Statement\n");
 	exit(1);
 }
-#line 1778 "project3.tab.c" /* yacc.c:1646  */
+#line 1779 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 229 "project3.y" /* yacc.c:1646  */
+#line 230 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "DefList", NULL);
 	addChild(3, (yyval.npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s %s\n", (yyval.npval)->name, (yyvsp[-1].npval)->name, (yyvsp[-1].npval)->next == NULL ? "" : (yyvsp[-1].npval)->next->name);
 }
-#line 1789 "project3.tab.c" /* yacc.c:1646  */
+#line 1790 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 235 "project3.y" /* yacc.c:1646  */
+#line 236 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(EMPTYNODETOKEN, "DefList", NULL);
 }
-#line 1797 "project3.tab.c" /* yacc.c:1646  */
+#line 1798 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 239 "project3.y" /* yacc.c:1646  */
+#line 240 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Def", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s %s %s\n", (yyval.npval)->name, (yyvsp[-2].npval)->name, (yyvsp[-2].npval)->next->name, (yyvsp[-1].npval)->next->name);
 }
-#line 1808 "project3.tab.c" /* yacc.c:1646  */
+#line 1809 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 244 "project3.y" /* yacc.c:1646  */
+#line 245 "project3.y" /* yacc.c:1646  */
     {
 	printf("Invalid Definition\n");
 	exit(1);
 }
-#line 1817 "project3.tab.c" /* yacc.c:1646  */
+#line 1818 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 249 "project3.y" /* yacc.c:1646  */
+#line 250 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "DecList", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s\n", (yyval.npval)->name, (yyvsp[0].npval)->name);
 }
-#line 1828 "project3.tab.c" /* yacc.c:1646  */
+#line 1829 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 255 "project3.y" /* yacc.c:1646  */
+#line 256 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "DecList", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1837 "project3.tab.c" /* yacc.c:1646  */
+#line 1838 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 260 "project3.y" /* yacc.c:1646  */
+#line 261 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Dec", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
 	if(debug)
 		printf("parse : %s -> %s\n", (yyval.npval)->name, (yyvsp[0].npval)->name);
 }
-#line 1848 "project3.tab.c" /* yacc.c:1646  */
+#line 1849 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 266 "project3.y" /* yacc.c:1646  */
+#line 267 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Dec", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1857 "project3.tab.c" /* yacc.c:1646  */
+#line 1858 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 273 "project3.y" /* yacc.c:1646  */
+#line 274 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1866 "project3.tab.c" /* yacc.c:1646  */
+#line 1867 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 277 "project3.y" /* yacc.c:1646  */
+#line 278 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));		
 }
-#line 1875 "project3.tab.c" /* yacc.c:1646  */
+#line 1876 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 281 "project3.y" /* yacc.c:1646  */
+#line 282 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1884 "project3.tab.c" /* yacc.c:1646  */
+#line 1885 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 285 "project3.y" /* yacc.c:1646  */
+#line 286 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1893 "project3.tab.c" /* yacc.c:1646  */
+#line 1894 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 289 "project3.y" /* yacc.c:1646  */
+#line 290 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1902 "project3.tab.c" /* yacc.c:1646  */
+#line 1903 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 293 "project3.y" /* yacc.c:1646  */
+#line 294 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1911 "project3.tab.c" /* yacc.c:1646  */
+#line 1912 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 297 "project3.y" /* yacc.c:1646  */
+#line 298 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1920 "project3.tab.c" /* yacc.c:1646  */
+#line 1921 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 301 "project3.y" /* yacc.c:1646  */
+#line 302 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1929 "project3.tab.c" /* yacc.c:1646  */
+#line 1930 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 305 "project3.y" /* yacc.c:1646  */
+#line 306 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1938 "project3.tab.c" /* yacc.c:1646  */
+#line 1939 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 309 "project3.y" /* yacc.c:1646  */
+#line 310 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(3, (yyval.npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1947 "project3.tab.c" /* yacc.c:1646  */
+#line 1948 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 313 "project3.y" /* yacc.c:1646  */
+#line 314 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(3, (yyval.npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1956 "project3.tab.c" /* yacc.c:1646  */
+#line 1957 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 317 "project3.y" /* yacc.c:1646  */
+#line 318 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(5, (yyval.npval), (yyvsp[-3].npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1965 "project3.tab.c" /* yacc.c:1646  */
+#line 1966 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 321 "project3.y" /* yacc.c:1646  */
+#line 322 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1974 "project3.tab.c" /* yacc.c:1646  */
+#line 1975 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 325 "project3.y" /* yacc.c:1646  */
+#line 326 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(5, (yyval.npval), (yyvsp[-3].npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1983 "project3.tab.c" /* yacc.c:1646  */
+#line 1984 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 329 "project3.y" /* yacc.c:1646  */
+#line 330 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 1992 "project3.tab.c" /* yacc.c:1646  */
+#line 1993 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 333 "project3.y" /* yacc.c:1646  */
+#line 334 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
 }
-#line 2001 "project3.tab.c" /* yacc.c:1646  */
+#line 2002 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 337 "project3.y" /* yacc.c:1646  */
+#line 338 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
 }
-#line 2010 "project3.tab.c" /* yacc.c:1646  */
+#line 2011 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
-#line 341 "project3.y" /* yacc.c:1646  */
+#line 342 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Exp", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));
 }
-#line 2019 "project3.tab.c" /* yacc.c:1646  */
+#line 2020 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 61:
-#line 347 "project3.y" /* yacc.c:1646  */
+#line 348 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Args", NULL);
 	addChild(4, (yyval.npval), (yyvsp[-2].npval), (yyvsp[-1].npval), (yyvsp[0].npval));
 }
-#line 2028 "project3.tab.c" /* yacc.c:1646  */
+#line 2029 "project3.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 351 "project3.y" /* yacc.c:1646  */
+#line 352 "project3.y" /* yacc.c:1646  */
     {
 	(yyval.npval) = (node*)newNode(-1, "Args", NULL);
 	addChild(2, (yyval.npval), (yyvsp[0].npval));	
 }
-#line 2037 "project3.tab.c" /* yacc.c:1646  */
+#line 2038 "project3.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 2041 "project3.tab.c" /* yacc.c:1646  */
+#line 2042 "project3.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2272,11 +2273,10 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 356 "project3.y" /* yacc.c:1906  */
+#line 357 "project3.y" /* yacc.c:1906  */
 
 
 int main(int argc, char** argv) {
-	
 	if(argc > 1){
 		if(!(yyin = fopen(argv[1], "r"))){
 			perror(argv[1]);
@@ -2298,12 +2298,26 @@ int main(int argc, char** argv) {
 
 	// printOutTable(&symTable);
 
-	parseAllExp(root, &symTable);
+	// parseAllExp(root, &symTable);
 
 	// dfsTraverse(0, root);
 
-	printOutTable(&symTable);
+	// printOutTable(&symTable);
 	
+	int registerNum = symTable.totalCnt;  // 前totalCnt个寄存器存变量
+
+	generateInterCode(root, &symTable, &codeTable, &registerNum);
+
+	// printf("print out code table\n");
+
+	// printOutCodeTable(&codeTable);
+
+
+	generateAssemblyCode(&codeTable);
+
+	// readFile("code.ir");
+
+	// printHead();
 	// 释放内存	
 	// freeTableMemory(&symTable);
 	// freeTreeMemory(root);

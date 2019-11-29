@@ -1,0 +1,10 @@
+    target         op       arg1       arg2
+             FUNCTION       main           
+        t1       READ                      
+        v1          =         t1           
+        t2          =         #1           
+        t3          +         v1         t2
+        v2          =         t3           
+                WRITE         v2           
+        t4          =         #0           
+        t4     RETURN                      

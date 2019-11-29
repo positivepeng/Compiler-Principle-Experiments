@@ -22,6 +22,7 @@ struct NODE
 	union VAL val;
 	char* name;
 	struct NODE* childs, *next;
+	int isVisited;   // 用于标识中间代码生成阶段是否以遍历该节点
 };
 
 typedef struct NODE node;

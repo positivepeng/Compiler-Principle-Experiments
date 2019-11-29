@@ -90,6 +90,24 @@ void parseFuncDec(symbol_type typeIn, node* root, symbol_table* st){
 	append2symTable(typeIn, root->childs->val.sval, tempVal, st);
 }
 
+int checkArgs(symbol* sym, node* args,symbol_table* st, int currCnt){
+	// Args : 	Exp COMMA Args
+	// 			Exp
+	node* exp = args->childs;
+	parseExp(exp, st);
+
+	if(exp->tokenType == (sym->paramType)[currCnt]){
+		currCnt++;
+		if(exp->next == NULL){
+			return currCnt == sym->cnt;
+		}
+		else 
+			return checkArgs(sym, exp->next->next, st, currCnt);
+	}
+	else 
+		return 0;
+}
+
 void parseExp(node* exp, symbol_table* st){
 	// exp的tokenType本来为-1,现在用来存exp表达的数据的类型
 	// Exp :	Exp ASSIGNOP Exp
@@ -99,8 +117,6 @@ void parseExp(node* exp, symbol_table* st){
 	// 			LP Exp RP
 	// 			MINUS Exp
 	// 			NOT Exp
-	// 			ID LP Args RP
-	// 			ID LP RP
 	// 			Exp LB Exp RB
 	// 			Exp DOT ID
 	if(strcmp(exp->childs->name, "INT") == 0){
@@ -113,18 +129,19 @@ void parseExp(node* exp, symbol_table* st){
 		exp->tokenType = (int)FLOATNAME;
 		exp->val.fval = exp->childs->val.fval;
 	}
-	else if(strcmp(exp->childs->name, "ID") == 0){
-		//	Exp:	ID
+	else if(strcmp(exp->childs->name, "ID") == 0 && exp->childs->next == NULL){
+		//	Exp:	ID (不能是函数调用)
 		symbol* sym = findSymbolInTable(exp->childs->val.sval, st);
 		if(sym == NULL){
 			printf("Error at line %d : Undefined variable \'%s\'\n", exp->childs->lineBegin, exp->childs->val.sval);
 			exit(0);
 		}
-		exp->tokenType = (int)sym->type;
-		if(sym->type == INTNAME)
-			exp->val.ival = sym->val.ival;
-		else if(sym->type == FLOATNAME)
-			exp->val.fval = sym->val.fval;
+		// if(sym->type == INTNAME)
+		// 	exp->val.ival = sym->val.ival;
+		// else if(sym->type == FLOATNAME)
+		// 	exp->val.fval = sym->val.fval;
+		if(sym->type == INTNAME || sym->type == FLOATNAME)
+			exp->tokenType = (int)sym->type;
 		else {
 			printf("Error at line %d : Invalid operand, only int and float are allowed\n", exp->lineBegin);
 			exit(0);
@@ -136,17 +153,20 @@ void parseExp(node* exp, symbol_table* st){
 		parseExp(exp1, st);
 		parseExp(exp2, st);
 		if(exp1->tokenType != exp2->tokenType){
-			printf("Error at line %d : Invalid Exp\n", exp->lineBegin);
+			printf("Error at line %d : Type mismatched for \'+\'\n", exp->lineBegin);
 			exit(0);
 		}
-		if(exp1->tokenType == (int)INTNAME){
-			exp->tokenType = (int)INTNAME;
-			exp->val.ival = exp1->val.ival + exp2->val.ival;
+		else{
+			exp->tokenType = exp1->tokenType;
 		}
-		else if(exp1->tokenType == (int)FLOATNAME){
-			exp->tokenType = (int)FLOATNAME;
-			exp->val.fval = exp1->val.fval + exp2->val.fval;
-		}
+		// if(exp1->tokenType == (int)INTNAME){
+		// 	exp->tokenType = (int)INTNAME;
+		// 	exp->val.ival = exp1->val.ival + exp2->val.ival;
+		// }
+		// else if(exp1->tokenType == (int)FLOATNAME){
+		// 	exp->tokenType = (int)FLOATNAME;
+		// 	exp->val.fval = exp1->val.fval + exp2->val.fval;
+		// }
 	}
 	else if(strcmp(exp->childs->next->name, "MINUS") == 0){
 		//	Exp:	Exp MINUS Exp
@@ -154,17 +174,20 @@ void parseExp(node* exp, symbol_table* st){
 		parseExp(exp1, st);
 		parseExp(exp2, st);
 		if(exp1->tokenType != exp2->tokenType){
-			printf("Error at line %d : Invalid Exp\n", exp->lineBegin);
+			printf("Error at line %d : Type mismatched for \'-\'\n", exp->lineBegin);
 			exit(0);
 		}
-		if(exp1->tokenType == (int)INTNAME){
-			exp->tokenType = (int)INTNAME;
-			exp->val.ival = exp1->val.ival - exp2->val.ival;
+		else{
+			exp->tokenType = exp1->tokenType;
 		}
-		else if(exp1->tokenType == (int)FLOATNAME){
-			exp->tokenType = (int)FLOATNAME;
-			exp->val.fval = exp1->val.fval - exp2->val.fval;
-		}
+		// if(exp1->tokenType == (int)INTNAME){
+		// 	exp->tokenType = (int)INTNAME;
+		// 	exp->val.ival = exp1->val.ival - exp2->val.ival;
+		// }
+		// else if(exp1->tokenType == (int)FLOATNAME){
+		// 	exp->tokenType = (int)FLOATNAME;
+		// 	exp->val.fval = exp1->val.fval - exp2->val.fval;
+		// }
 	}
 	else if(strcmp(exp->childs->next->name, "STAR") == 0){
 		//	Exp:	Exp STAR Exp
@@ -172,17 +195,20 @@ void parseExp(node* exp, symbol_table* st){
 		parseExp(exp1, st);
 		parseExp(exp2, st);
 		if(exp1->tokenType != exp2->tokenType){
-			printf("Error at line %d : Invalid Exp\n", exp->lineBegin);
+			printf("Error at line %d : Type mismatched for \'*\'\n", exp->lineBegin);
 			exit(0);
 		}
-		if(exp1->tokenType == (int)INTNAME){
-			exp->tokenType = (int)INTNAME;
-			exp->val.ival = exp1->val.ival * exp2->val.ival;
+		else{
+			exp->tokenType = exp1->tokenType;
 		}
-		else if(exp1->tokenType == (int)FLOATNAME){
-			exp->tokenType = (int)FLOATNAME;
-			exp->val.fval = exp1->val.fval * exp2->val.fval;
-		}
+		// if(exp1->tokenType == (int)INTNAME){
+		// 	exp->tokenType = (int)INTNAME;
+		// 	exp->val.ival = exp1->val.ival * exp2->val.ival;
+		// }
+		// else if(exp1->tokenType == (int)FLOATNAME){
+		// 	exp->tokenType = (int)FLOATNAME;
+		// 	exp->val.fval = exp1->val.fval * exp2->val.fval;
+		// }
 	}
 	else if(strcmp(exp->childs->next->name, "DIV") == 0){
 		//	Exp:	Exp DIV Exp
@@ -190,44 +216,78 @@ void parseExp(node* exp, symbol_table* st){
 		parseExp(exp1, st);
 		parseExp(exp2, st);
 		if(exp1->tokenType != exp2->tokenType){
-			printf("Error at line %d : Invalid Exp\n", exp->lineBegin);
+			printf("Error at line %d : Type mismatched for \'/\'\n", exp->lineBegin);
 			exit(0);
 		}
-		if(exp1->tokenType == (int)INTNAME){
-			exp->tokenType = (int)INTNAME;
-			exp->val.ival = exp1->val.ival / exp2->val.ival;
+		else{
+			exp->tokenType = exp1->tokenType;
 		}
-		else if(exp1->tokenType == (int)FLOATNAME){
-			exp->tokenType = (int)FLOATNAME;
-			exp->val.fval = exp1->val.fval / exp2->val.fval;
-		}
+		// if(exp1->tokenType == (int)INTNAME){
+		// 	exp->tokenType = (int)INTNAME;
+		// 	//exp->val.ival = exp1->val.ival / exp2->val.ival;
+		// }
+		// else if(exp1->tokenType == (int)FLOATNAME){
+		// 	exp->tokenType = (int)FLOATNAME;
+		// 	exp->val.fval = exp1->val.fval / exp2->val.fval;
+		// }
 	}
 	else if(strcmp(exp->childs->next->name, "ASSIGNOP") == 0){
 		//	Exp:	Exp ASSIGNOP Exp
 		node* exp1 = exp->childs, *exp2 = exp->childs->next->next;
 		parseExp(exp1, st);
 		parseExp(exp2, st);
-
-		exp->tokenType = exp1->tokenType = exp2->tokenType;
-		if(exp2->tokenType == (int)INTNAME){
-			exp->val.ival = exp1->val.ival = exp2->val.ival;
-		}
-		else if(exp2->tokenType == (int)FLOATNAME){
-			exp->val.fval = exp1->val.fval = exp2->val.fval;
-		}
+		// if(exp2->tokenType == (int)INTNAME){
+		// 	exp->val.ival = exp1->val.ival = exp2->val.ival;
+		// }
+		// else if(exp2->tokenType == (int)FLOATNAME){
+		// 	exp->val.fval = exp1->val.fval = exp2->val.fval;
+		// }
 		
 		if(strcmp(exp1->childs->name, "ID") == 0){
 			symbol* sym = findSymbolInTable(exp1->childs->val.sval, st);
 			if((int)sym->type != exp2->tokenType){
 				printf("Error at line %d : Type mismatched for assignment\n", exp->lineBegin);
+				exit(0);
 			}
-			if(exp2->tokenType == (int)INTNAME){
-				sym->val.ival = exp1->val.ival;
-			}
-			else if(exp2->tokenType == (int)FLOATNAME){
-				sym->val.fval = exp1->val.fval;
-			}
+			else
+				exp->tokenType = (int)sym->type;
+			// if(exp2->tokenType == (int)INTNAME){
+			// 	sym->val.ival = exp1->val.ival;
+			// }
+			// else if(exp2->tokenType == (int)FLOATNAME){
+			// 	sym->val.fval = exp1->val.fval;
+			// }
 		}
+		else{
+			printf("Error at line %d : Invalid Left Value\n", exp->lineBegin);
+		}
+	}
+	else if(strcmp(exp->childs->next->name, "LP") == 0){
+		//Exp:	ID LP Args RP
+		// 		ID LP RP
+		// 检查函数是否存在
+		char* fname = exp->childs->val.sval;
+		symbol* sym = findSymbolInTable(fname, st);
+		if(sym == NULL){
+			printf("Error at line %d : Undefined Function \'%s\'\n", exp->lineBegin, fname);
+			exit(0);
+		}
+		else if(sym->type != FUNCTIONNAME){
+			printf("Error at line %d : \'%s\' is not a function \n", exp->lineBegin, fname);
+			exit(0);
+		}
+
+		exp->tokenType = (int)(sym->returnValType);
+		// 无参数函数
+		if(strcmp(exp->childs->next->next->name, "RP") == 0 && sym->cnt == 0){
+			return ;
+		}
+		// 有参数函数
+		if(strcmp(exp->childs->next->next->name, "Args") == 0 && checkArgs(sym, exp->childs->next->next, st, 0) == 1){
+			return ;
+		}
+		printf("Error at line %d : Type mismatched for function parameters\n", exp->lineBegin);
+		exit(0);
 	}
 }
 
@@ -444,6 +504,14 @@ symbol* findSymbolInTable(char* name, symbol_table* st){
 			return &(st->symbols)[i];
 	}
 	return NULL;
+}
+
+int getSymbolIndex(char* name, symbol_table* st){
+	for(int i = 0;i < st->totalCnt; i++){
+		if(strcmp(name, (st->symbols)[i].name) == 0)
+			return i;
+	}
+	return -1;	
 }
 
 void freeTableMemory(symbol_table* st){

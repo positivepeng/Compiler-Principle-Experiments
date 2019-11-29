@@ -2,7 +2,7 @@
 %{
 	#include <stdio.h>
 	#include <stdlib.h>
-	#include "symbol.h"
+	#include "AScode.h"
 	extern int yylex();
 	extern int yyparse();
 	extern FILE* yyin;
@@ -12,6 +12,7 @@
 	int debug = 0;
 	int haserror = 0;
 	symbol_table symTable;
+	code_table codeTable;
 
 	void yyerror(const char* s);
 %}
@@ -356,7 +357,6 @@ Args : Exp COMMA Args{
 %%
 
 int main(int argc, char** argv) {
-	
 	if(argc > 1){
 		if(!(yyin = fopen(argv[1], "r"))){
 			perror(argv[1]);
@@ -378,12 +378,26 @@ int main(int argc, char** argv) {
 
 	// printOutTable(&symTable);
 
-	parseAllExp(root, &symTable);
+	// parseAllExp(root, &symTable);
 
 	// dfsTraverse(0, root);
 
-	printOutTable(&symTable);
+	// printOutTable(&symTable);
 	
+	int registerNum = symTable.totalCnt;  // 前totalCnt个寄存器存变量
+
+	generateInterCode(root, &symTable, &codeTable, &registerNum);
+
+	// printf("print out code table\n");
+
+	// printOutCodeTable(&codeTable);
+
+
+	generateAssemblyCode(&codeTable);
+
+	// readFile("code.ir");
+
+	// printHead();
 	// 释放内存	
 	// freeTableMemory(&symTable);
 	// freeTreeMemory(root);
