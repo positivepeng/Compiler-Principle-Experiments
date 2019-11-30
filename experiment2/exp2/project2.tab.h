@@ -34,7 +34,7 @@
 # define YY_YY_PROJECT2_TAB_H_INCLUDED
 /* Debug traces.  */
 #ifndef YYDEBUG
-# define YYDEBUG 1
+# define YYDEBUG 0
 #endif
 #if YYDEBUG
 extern int yydebug;
@@ -82,7 +82,7 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 16 "project2.y" /* yacc.c:1909  */
+#line 15 "project2.y" /* yacc.c:1909  */
 
 	struct NODE* npval;
 

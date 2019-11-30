@@ -1,14 +1,19 @@
+%option noyywrap
 %option yylineno
+
+
 %{
 	int output = 0;
 %}
+
+
 INT [+-]?[1-9][0-9]*
 FLOAT [+-]?([0-9]*\.?[0-9]+|[0-9]+\.)
 ID [a-zA-Z_][0-9a-zA-Z_]*
 
-OctalNum 0[0-7]+
+OctalNum 0[0-7]+       			
 IllegalOctalNum 0[0-9]*
-HexadecimalNum 0[xX][0-9a-gA-G]+
+HexadecimalNum 0[xX][0-9a-fA-F]+
 IllegalHexadecimalNum 0[xX][0-9a-zA-Z]*
 FloatingPointNum [+-]?([1-9]+[0-9]*|[0-9]*\.[0-9]+|[1-9]+\.|\.[0-9]+)([eE]+[+-]?[0-9]+)?
 IllegalFloatingPointNum [+-]?[.eE0-9]*

@@ -26,3 +26,12 @@ struct NODE
 };
 
 typedef struct NODE node;
+
+void printNode(int numOfTab, node* p);
+void dfsTraverse(int numOfTab, node* root);
+void freeTreeMemory(node* root);
+void addChild(int numOfChild, ...);
+node* newNode(int tokenType, char* text, struct YYLTYPE* loc);
+
+
+

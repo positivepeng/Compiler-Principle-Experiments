@@ -9,10 +9,10 @@ void newIRcode(char opIn[10], char tIn[REGISTERMAXLEN], char a1In[REGISTERMAXLEN
 }
 
 void reset(char op[10], char target[REGISTERMAXLEN], char arg1[REGISTERMAXLEN], char arg2[REGISTERMAXLEN]){
-	memset(op, 0, sizeof(op));
-	memset(target, 0, sizeof(target));
-	memset(arg1, 0, sizeof(arg1));
-	memset(arg2, 0, sizeof(arg2));
+	memset(op, 0, 10);
+	memset(target, 0, REGISTERMAXLEN);
+	memset(arg1, 0, REGISTERMAXLEN);
+	memset(arg2, 0, REGISTERMAXLEN);
 }
 
 void printOutCodeTable(code_table* ct){

@@ -1,5 +1,5 @@
 parse : lex.yy.c project3.tab.c tree.c symbol.c IRcode.c AScode.c
-	gcc -w lex.yy.c project3.tab.c tree.c symbol.c IRcode.c AScode.c -o parse
+	gcc lex.yy.c project3.tab.c tree.c symbol.c IRcode.c AScode.c -o parse
 
 lex.yy.c : project3.l
 	flex project3.l

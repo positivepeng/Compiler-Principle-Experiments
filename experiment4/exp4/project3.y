@@ -376,32 +376,21 @@ int main(int argc, char** argv) {
 	// 将符号存入符号表
 	saveSymbol2table(root, &symTable);
 
-	// printOutTable(&symTable);
+	// 输出符号表
+	printOutTable(&symTable);
 
-	// parseAllExp(root, &symTable);
+	int registerNum = symTable.totalCnt;  // 前totalCnt个寄存器存符号表中的变量
 
-	// dfsTraverse(0, root);
-
-	// printOutTable(&symTable);
-	
-	int registerNum = symTable.totalCnt;  // 前totalCnt个寄存器存变量
-
+	// 生成中间代码
+	// int output = 0;
 	generateInterCode(root, &symTable, &codeTable, &registerNum);
 
-	// printf("print out code table\n");
-
-	// printOutCodeTable(&codeTable);
-
-
+	// 生成汇编代码
 	generateAssemblyCode(&codeTable);
 
-	// readFile("code.ir");
-
-	// printHead();
-	// 释放内存	
+	// 释放内存(尚未完善)
 	// freeTableMemory(&symTable);
 	// freeTreeMemory(root);
-
 	return 0;
 }
 

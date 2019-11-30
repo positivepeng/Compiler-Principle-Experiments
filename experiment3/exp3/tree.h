@@ -11,8 +11,6 @@ union VAL{
 	int ival;
 	float fval;
 	char* sval;
-	// structInfo* stval;   // 结构体定义包含的信息
-	// funcInfo* funcval;	// 函数定义包含的信息
 };
 
 struct NODE
@@ -25,3 +23,12 @@ struct NODE
 };
 
 typedef struct NODE node;
+
+void printNode(int numOfTab, node* p);
+void dfsTraverse(int numOfTab, node* root);
+void addChild(int numOfChild, ...);
+void freeTreeMemory(node* root);
+node* newNode(int tokenType, char* text, struct YYLTYPE* loc);
+
+
+

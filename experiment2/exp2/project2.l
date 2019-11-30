@@ -3,7 +3,7 @@
 
 %{
 	#include <stdio.h>
-	#include "tree.c"
+	#include "tree.h"
 	#include "project2.tab.h"
 	#define YY_DECL int yylex()
 

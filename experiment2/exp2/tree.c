@@ -70,7 +70,7 @@ node* newNode(int tokenType, char* text, struct YYLTYPE* loc){
 		p->lineBegin = p->lineEnd = -1;
 	}
 	
-	p->tokenType = tokenType;
+	p->tokenType = (int)tokenType;
 	p->val.ival = -1;
 	p->name = NULL;
 	p->childs = p->next = NULL;
@@ -136,7 +136,7 @@ node* newNode(int tokenType, char* text, struct YYLTYPE* loc){
         // 	*temp = toupper(*temp);
         // 	temp++;
         // }
-        p->val.sval = (char*)malloc(strlen(text));
+        p->val.sval = (char*)malloc(strlen(text)+1);
         strcpy(p->val.sval, text);
 	}
     else if(tokenType == LP){

@@ -5,7 +5,6 @@
 	#include "tree.h"
 	#define EMPTYNODETOKEN -2
 	extern int yylex();
-	extern int yyparse();
 	extern FILE* yyin;
 	extern int yylineno;
 	int debug = 0;
@@ -350,7 +349,6 @@ Args : Exp COMMA Args{
 %%
 
 int main(int argc, char** argv) {
-	
 	if(argc > 1){
 		if(!(yyin = fopen(argv[1], "r"))){
 			perror(argv[1]);
@@ -358,7 +356,7 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	yydebug = 0;
+	// yydebug = 0;
 
 	yyparse();
 	
@@ -366,6 +364,6 @@ int main(int argc, char** argv) {
 }
 
 void yyerror(const char* s) {
-	fprintf(stderr, "Parse error at line %d, near token: %s\n", yylineno, yylval.npval->name);
+	fprintf(stderr, "Parse error at line %d, near token: %s\n", yylineno, (yylval.npval)->name);
 	printf("Detail error message: ");
 }

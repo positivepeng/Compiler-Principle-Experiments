@@ -26,10 +26,6 @@ void printHead(){
 	printf("\tjr $ra\n");
 }
 
-void recordDependency(){
-
-}
-
 int getRegister(char* variableName, int* memory, int regs[32], int used[32]){
 	// 分配寄存器 分配t0-t9
 	// 每个variableName(形式为t#)都对应一个memory中的位置

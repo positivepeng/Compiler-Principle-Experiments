@@ -1,8 +1,5 @@
 #include "symbol.h"
 
-symbol* findSymbolInTable(char* name, symbol_table* st);
-void parseExp(node* exp, symbol_table* st);
-
 void append2symTable(symbol_type typeIn, char* name, union VAL valIn, symbol_table* st){
 	(st->symbols)[st->totalCnt].name = malloc(strlen(name)+1);
 	strcpy((st->symbols)[st->totalCnt].name, name);
@@ -440,7 +437,7 @@ void saveSymbol2table(node* root, symbol_table* st){
 					sym->returnValType = FLOATNAME;
 				
 
-				parseVarList(spec->next->childs->next->next, &(sym->cnt), &(sym->paramType));	
+				parseVarList(spec->next->childs->next->next, &(sym->cnt), sym->paramType);	
 
 				// printf("parse finish: %s %d\n",(st->symbols)[st->totalCnt-1].name ,(st->symbols)[st->totalCnt-1].cnt);
 			}
