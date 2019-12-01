@@ -376,17 +376,20 @@ int main(int argc, char** argv) {
 	// 将符号存入符号表
 	saveSymbol2table(root, &symTable);
 
+
+	parseAllExp(root, &symTable);
+
 	// 输出符号表
 	printOutTable(&symTable);
 
-	int registerNum = symTable.totalCnt;  // 前totalCnt个寄存器存符号表中的变量
+	// int registerNum = symTable.totalCnt;  // 前totalCnt个寄存器存符号表中的变量
 
 	// 生成中间代码
 	// int output = 0;
-	generateInterCode(root, &symTable, &codeTable, &registerNum);
+	// generateInterCode(root, &symTable, &codeTable, &registerNum);
 
 	// 生成汇编代码
-	generateAssemblyCode(&codeTable);
+	// generateAssemblyCode(&codeTable);
 
 	// 释放内存(尚未完善)
 	// freeTableMemory(&symTable);

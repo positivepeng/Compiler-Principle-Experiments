@@ -36,9 +36,9 @@ void parseExp(node* exp, symbol_table* st);
 
 void append2symTable(symbol_type typeIn, char* name, union VAL valIn, symbol_table* st);
 
-void parseDec(symbol_type typeIn, node* dec, symbol_table* st);
+void parseDec(symbol_type typeIn, node* dec, symbol_table* st, char* structName);
 
-void parseDecList(symbol_type typeIn, node* root, symbol_table* st);
+void parseDecList(symbol_type typeIn, node* root, symbol_table* st, char* structName);
 
 void parseStruct(symbol_type typeIn, node* root, symbol_table* st);
 
@@ -46,7 +46,7 @@ void parseFuncDec(symbol_type typeIn, node* root, symbol_table* st);
 int checkArgs(symbol* sym, node* args,symbol_table* st, int currCnt);
 
 void parseAllExp(node* root, symbol_table* st);
-void parseVarList(node* varList, int* paramCnt, symbol_type* paramType);
+void parseVarList(node* varList, int* paramCnt, symbol_type* paramType, char** fieldName);
 
 void parseDefList(node* defList, int* paramCnt, symbol_type* paramType, char* fieldName[MAXFILEDNUM]);
 
