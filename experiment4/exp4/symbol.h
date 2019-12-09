@@ -31,6 +31,7 @@ typedef struct
 	int totalCnt;
 }symbol_table;
 
+void addSystemFunctions(symbol_table* st);
 symbol* findSymbolInTable(char* name, symbol_table* st);
 void parseExp(node* exp, symbol_table* st);
 

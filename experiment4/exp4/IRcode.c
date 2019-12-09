@@ -22,138 +22,184 @@ void printOutCodeTable(code_table* ct){
 	}
 }
 
+void printOutInterCode(code_table* ct){
+	for(int i = 0;i < ct->totalCnt; i++){
+		if(strcmp(ct->codes[i].op, "=") == 0)
+			printf("%s := %s\n", ct->codes[i].target, ct->codes[i].arg1);
+		else if(strcmp(ct->codes[i].op, "FUNCTION") == 0)
+			printf("FUNCTION %s\n", ct->codes[i].arg1);
+		else if(strcmp(ct->codes[i].op, "RETURN") == 0)
+			printf("RETURN %s\n", ct->codes[i].arg1);
+		else if(strcmp(ct->codes[i].op, "+") == 0 || 
+				strcmp(ct->codes[i].op, "-") == 0 || 
+				strcmp(ct->codes[i].op, "*") == 0 || 
+				strcmp(ct->codes[i].op, "/") == 0){
+			printf("%s := %s %s %s\n", ct->codes[i].target, ct->codes[i].arg1, ct->codes[i].op, ct->codes[i].arg2);
+		}
+		else if(strcmp(ct->codes[i].op, "READ") == 0)
+			printf("READ %s\n", ct->codes[i].target);
+		else if(strcmp(ct->codes[i].op, "WRITE") == 0)
+			printf("WRITE %s\n", ct->codes[i].arg1);
+		else if(strcmp(ct->codes[i].op, "CALL") == 0){
+			printf("%s := CALL %s\n", ct->codes[i].target, ct->codes[i].arg1);
+		}
+	}
+}
 
-int translateExp(node* root, symbol_table* stable, code_table* ctable, int* registerNum){
+int translateExp(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
 	// 返回结果存入的寄存器的编号
 	// 解析Exp
-	// Exp : 	Exp ASSIGNOP Exp
 	// 			Exp RELOP Exp
-	// 			Exp PLUS Exp
-	// 			Exp MINUS Exp
-	// 			Exp STAR Exp
-	// 			Exp DIV Exp
+
 	// 			ID LP Args RP
 	// 			ID LP RP
 	// 			ID
-	// 			INT
-	// 			FLOAT
+
+	// 标记该节点已访问
 	root->isVisited = 1;
+
 	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
 	if(strcmp(root->childs->name, "INT") == 0){
+		// 			INT
 		reset(op, target, arg1, arg2);
 		sprintf(target, "t%d", (*registerNum)++);
 		sprintf(arg1, "#%d", root->childs->val.ival);
 		newIRcode("=", target, arg1, arg2, ctable);
-		// printf("t%d = #%d\n", (*registerNum)++, root->childs->val.ival);
 		return (*registerNum)-1;
 	}
 	else if(strcmp(root->childs->name, "ID") == 0 && root->childs->next == NULL){
+		//			ID
 		return getSymbolIndex(root->childs->val.sval, stable);
 	}
 	else if(strcmp(root->childs->next->name, "ASSIGNOP") == 0){
-		// 左值
+		// Exp : 	Exp ASSIGNOP Exp
+	
+		// 左EXP标记已访问
 		root->childs->isVisited = 1;
-		int ans = translateExp(root->childs->next->next, stable, ctable, registerNum);
-		int vnum = getSymbolIndex(root->childs->childs->val.sval, stable);
 
+		//　获取ID所在的寄存器编号，翻译右EXP
+		int vnum = getSymbolIndex(root->childs->childs->val.sval, stable);
+		int ans = translateExp(root->childs->next->next, stable, ctable, registerNum, labelNum);
+		
 		reset(op, target, arg1, arg2);
 		sprintf(target, "t%d", vnum);
 		sprintf(arg1, "t%d", ans);
 		newIRcode("=", target, arg1, arg2, ctable);
 
-		// printf("t%d := t%d\n", vnum, ans);
-		return -1*vnum;
+		return vnum;
 	}
-	else if(strcmp(root->childs->next->name, "PLUS") == 0){
+	else if(strcmp(root->childs->next->name, "PLUS") == 0 || 
+			strcmp(root->childs->next->name, "MINUS") == 0 || 
+			strcmp(root->childs->next->name, "STAR") == 0 || 
+			strcmp(root->childs->next->name, "DIV") == 0){
+		// 			Exp PLUS Exp
+		// 			Exp MINUS Exp
+		// 			Exp STAR Exp
+		// 			Exp DIV Exp
+		// 左exp标记已访问
 		root->childs->isVisited = 1;
-		char c1, c2;
-		int num1 = translateExp(root->childs, stable, ctable, registerNum);
-		int num2 = translateExp(root->childs->next->next, stable, ctable, registerNum);
 
+		// 翻译子exp
+		int num1 = translateExp(root->childs, stable, ctable, registerNum, labelNum);
+		int num2 = translateExp(root->childs->next->next, stable, ctable, registerNum, labelNum);
+
+		// 生成中间代码
 		reset(op, target, arg1, arg2);
 		sprintf(target, "t%d", (*registerNum)++);
 		sprintf(arg1, "t%d", num1);
 		sprintf(arg2, "t%d", num2);
-		newIRcode("+", target, arg1, arg2, ctable);
+		if(strcmp(root->childs->next->name, "PLUS") == 0)
+			newIRcode("+", target, arg1, arg2, ctable);
+		if(strcmp(root->childs->next->name, "MINUS") == 0)
+			newIRcode("-", target, arg1, arg2, ctable);
+		if(strcmp(root->childs->next->name, "STAR") == 0)
+			newIRcode("*", target, arg1, arg2, ctable);
+		if(strcmp(root->childs->next->name, "DIV") == 0)
+			newIRcode("/", target, arg1, arg2, ctable);
 
-		// printf("t%d := t%d + t%d\n", (*registerNum)++, num1, num2);
 		return (*registerNum)-1;
 	}
 	else if(strcmp(root->childs->name, "ID") == 0 && strcmp(root->childs->next->name, "LP") == 0){
 		if(strcmp(root->childs->next->next->name, "RP") == 0){
 			if(strcmp(root->childs->val.sval, "read") == 0){
+				// 调用系统函数read
 				reset(op, target, arg1, arg2);
 				sprintf(target, "t%d", (*registerNum)++);
 				newIRcode("READ", target, arg1, arg2, ctable);
-				// printf("READ t%d\n", (*registerNum)++);
 				return (*registerNum)-1;
 			}
 			else{
 				// 无参数函数调用
+				// 未做测试
 				reset(op, target, arg1, arg2);
 				sprintf(target, "t%d", (*registerNum)++);
-				newIRcode(root->childs->val.sval, target, arg1, arg2, ctable);
-
-				// printf("t%d := CALL %s\n", (*registerNum)++, root->childs->val.sval);
+				sprintf(arg1, "%s", root->childs->val.sval);
+				newIRcode("CALL", target, arg1, arg2, ctable);
 				return (*registerNum)-1;	
 			}
 		}
 		else if(strcmp(root->childs->next->next->name, "Args") == 0){
 			// 有一个参数
-			int num = translateExp(root->childs->next->next->childs, stable, ctable, registerNum);
+			int num = translateExp(root->childs->next->next->childs, stable, ctable, registerNum, labelNum);
 			if(strcmp(root->childs->val.sval, "write") == 0){
+				// 调用write
 				reset(op, target, arg1, arg2);
 				sprintf(arg1, "t%d", num);
 				newIRcode("WRITE", target, arg1, arg2, ctable);
-				// printf("WRITE %c%d\n", c, num);
 			}
 		}
 		
 	}
 }
 
-int translateStmt(node* root, symbol_table* stable, code_table* ctable, int* registerNum){
-	// Stmt : Exp SEMI
-	// 			| CompSt
+int translateStmt(node* stmt, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
+	// Stmt : 　　　 CompSt
 	// 			| RETURN Exp SEMI
 	// 			| IF LP Exp RP Stmt
 	// 			| IF LP Exp RP Stmt ELSE Stmt
-	root->isVisited = 1;
+	// 标记该节点已被访问
+	stmt->isVisited = 1;
 	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
-	if(strcmp(root->childs->next->name, "SEMI") == 0){
-		return translateExp(root->childs, stable, ctable, registerNum);
+	if(strcmp(stmt->childs->next->name, "SEMI") == 0){
+		// Stmt : Exp SEMI
+		return translateExp(stmt->childs, stable, ctable, registerNum, labelNum);
 	}
-	else if(strcmp(root->childs->name, "RETURN") == 0){
-		int num1 = translateExp(root->childs->next, stable, ctable, registerNum);
+	else if(strcmp(stmt->childs->name, "RETURN") == 0){
+		// Stmt : RETURN Exp SEMI
+		node* exp = stmt->childs->next;
+		int num1 = translateExp(exp, stable, ctable, registerNum, labelNum);
+
+		// 新增中间代码　return语句
 		reset(op, target, arg1, arg2);
-		sprintf(target, "t%d", num1);
+		sprintf(arg1, "t%d", num1);
 		newIRcode("RETURN", target, arg1, arg2, ctable);
-		// printf("RETURN %c%d\n",c ,num1);
 	}
 }
 
 void translateFunDec(node* root, symbol_table* stable, code_table* ctable, int* registerNum){
 	// FunDec : ID LP VarList RP
 	// 			ID LP RP
+	
+	// 标记该节点已被访问
 	root->isVisited = 1;
-	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
 
+	// 添加一行中间代码，表面函数开头
+	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
 	reset(op, target, arg1, arg2);
 	newIRcode("FUNCTION", target, root->childs->val.sval, arg2, ctable);
-
-	// printf("FUNCTION %s :\n", root->childs->val.sval);
 }
 
-void generateInterCode(node* root, symbol_table* stable, code_table* ctable, int* registerNum){
+void generateInterCode(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
 	if(root == NULL || root->name == NULL)
 		return ;
-	
+
+	// 检查节点是否已被访问过
 	if(root->isVisited == 0){
 		if(strcmp(root->name, "Exp") == 0){
-			translateExp(root, stable, ctable, registerNum);
+			translateExp(root, stable, ctable, registerNum, labelNum);
 		}
 		else if(strcmp(root->name, "Stmt") == 0){
-			translateStmt(root, stable, ctable, registerNum);
+			translateStmt(root, stable, ctable, registerNum, labelNum);
 		}
 		else if(strcmp(root->name, "FunDec") == 0){
 			translateFunDec(root, stable, ctable, registerNum);
@@ -164,7 +210,7 @@ void generateInterCode(node* root, symbol_table* stable, code_table* ctable, int
 	if(root->childs != NULL){
 		node* sibling = root->childs;
 		while(sibling != NULL){
-			generateInterCode(sibling, stable, ctable, registerNum);
+			generateInterCode(sibling, stable, ctable, registerNum, labelNum);
 			sibling = sibling->next;
 		}
 	}

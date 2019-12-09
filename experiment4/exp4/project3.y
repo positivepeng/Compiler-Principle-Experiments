@@ -373,6 +373,8 @@ int main(int argc, char** argv) {
 	// dfs输出语法树
 	// dfsTraverse(0, root);
 
+	addSystemFunctions(&symTable);
+
 	// 将符号存入符号表
 	saveSymbol2table(root, &symTable);
 
@@ -382,12 +384,12 @@ int main(int argc, char** argv) {
 	// 输出符号表
 	printOutTable(&symTable);
 
-	// int registerNum = symTable.totalCnt;  // 前totalCnt个寄存器存符号表中的变量
-
+	int registerNum = symTable.totalCnt;  // 前totalCnt个寄存器存符号表中的变量
+	int labelNum = 0;
 	// 生成中间代码
 	// int output = 0;
-	// generateInterCode(root, &symTable, &codeTable, &registerNum);
-
+	generateInterCode(root, &symTable, &codeTable, &registerNum, &labelNum);
+	printOutInterCode(&codeTable);
 	// 生成汇编代码
 	// generateAssemblyCode(&codeTable);
 

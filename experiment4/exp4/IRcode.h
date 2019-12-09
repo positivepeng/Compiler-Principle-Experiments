@@ -25,7 +25,8 @@ void newIRcode(char opIn[10], char tIn[REGISTERMAXLEN], char a1In[REGISTERMAXLEN
 void reset(char op[10], char target[REGISTERMAXLEN], char arg1[REGISTERMAXLEN], char arg2[REGISTERMAXLEN]);
 
 void printOutCodeTable(code_table* ct);
-int translateExp(node* root, symbol_table* stable, code_table* ctable, int* registerNum);
-int translateStmt(node* root, symbol_table* stable, code_table* ctable, int* registerNum);
+void printOutInterCode(code_table* ct);
+int translateExp(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
+int translateStmt(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
 void translateFunDec(node* root, symbol_table* stable, code_table* ctable, int* registerNum);
-void generateInterCode(node* root, symbol_table* stable, code_table* ctable, int* registerNum);
+void generateInterCode(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);

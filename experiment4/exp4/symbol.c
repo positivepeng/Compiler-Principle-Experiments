@@ -1,5 +1,21 @@
 #include "symbol.h"
 
+void addSystemFunctions(symbol_table* st){
+	(st->symbols)[st->totalCnt].name = strdup("read");
+	(st->symbols)[st->totalCnt].type = FUNCTIONNAME;
+	(st->symbols)[st->totalCnt].cnt = 0;
+	(st->symbols)[st->totalCnt].returnValType = INTNAME;
+	st->totalCnt++;
+
+	(st->symbols)[st->totalCnt].name = strdup("write");
+	(st->symbols)[st->totalCnt].type = FUNCTIONNAME;
+	(st->symbols)[st->totalCnt].cnt = 1;
+	(st->symbols)[st->totalCnt].returnValType = UNCLEAR;
+	(st->symbols)[st->totalCnt].paramType[0] = INTNAME;
+	(st->symbols)[st->totalCnt].fieldName[0] = strdup("n");
+	st->totalCnt++;
+}
+
 void append2symTable(symbol_type typeIn, char* name, union VAL valIn, symbol_table* st){
 	(st->symbols)[st->totalCnt].name = malloc(strlen(name)+1);
 	strcpy((st->symbols)[st->totalCnt].name, name);
