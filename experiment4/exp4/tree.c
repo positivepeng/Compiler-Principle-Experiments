@@ -126,6 +126,8 @@ node* newNode(int tokenType, char* text, struct YYLTYPE* loc){
 	}
 	else if(tokenType == RELOP){
 		p->name = strdup("RELOP");	
+		p->val.sval = (char*)malloc(strlen(text)+1);
+		strcpy(p->val.sval, text);
 	}
 	else if(tokenType == PLUS){
 		p->name = strdup("PLUS");	

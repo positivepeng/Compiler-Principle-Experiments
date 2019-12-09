@@ -46,14 +46,21 @@ void printOutInterCode(code_table* ct){
 	}
 }
 
+void translateCond(node* exp, int labelTrue, int labelFalse, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
+	
+	if(strcmp(exp->childs->name, "NOT") == 0){
+		// Exp : Not Exp1
+		translateCond(exp, labelFalse, labelTrue, stable, ctable, registerNum, labelNum);
+	}
+	else if(strcmp(exp->childs->next->name, "RELOP") == 0){
+		// Exp : Exp1 RELOP Exp2
+		
+	}
+}
+
 int translateExp(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
 	// 返回结果存入的寄存器的编号
 	// 解析Exp
-	// 			Exp RELOP Exp
-
-	// 			ID LP Args RP
-	// 			ID LP RP
-	// 			ID
 
 	// 标记该节点已访问
 	root->isVisited = 1;
@@ -120,6 +127,8 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 		return (*registerNum)-1;
 	}
 	else if(strcmp(root->childs->name, "ID") == 0 && strcmp(root->childs->next->name, "LP") == 0){
+		// 			ID LP Args RP
+		// 			ID LP RP
 		if(strcmp(root->childs->next->next->name, "RP") == 0){
 			if(strcmp(root->childs->val.sval, "read") == 0){
 				// 调用系统函数read
@@ -147,8 +156,12 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 				sprintf(arg1, "t%d", num);
 				newIRcode("WRITE", target, arg1, arg2, ctable);
 			}
-		}
-		
+		}	
+	}
+	else if(strcmp(root->childs->next->name, "RELOP") == 0){
+		// 			Exp RELOP Exp
+		char* relop = root->childs->next->val.sval;
+
 	}
 }
 

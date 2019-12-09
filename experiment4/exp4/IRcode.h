@@ -26,6 +26,7 @@ void reset(char op[10], char target[REGISTERMAXLEN], char arg1[REGISTERMAXLEN], 
 
 void printOutCodeTable(code_table* ct);
 void printOutInterCode(code_table* ct);
+void translateCond(node* root, int labelTrue, int labelFalse, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
 int translateExp(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
 int translateStmt(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
 void translateFunDec(node* root, symbol_table* stable, code_table* ctable, int* registerNum);
