@@ -43,11 +43,20 @@ void printOutInterCode(code_table* ct){
 		else if(strcmp(ct->codes[i].op, "CALL") == 0){
 			printf("%s := CALL %s\n", ct->codes[i].target, ct->codes[i].arg1);
 		}
+		else if(strcmp(ct->codes[i].op, "IF") == 0){
+			printf("IF %s %s %s ",ct->codes[i].arg1, ct->codes[i].target, ct->codes[i].arg2);
+		}
+		else if(strcmp(ct->codes[i].op, "GOTO") == 0){
+			printf("GOTO %s\n", ct->codes[i].arg1);
+		}
+		else if(strcmp(ct->codes[i].op, "LABEL") == 0)
+			printf("LABEL %s\n", ct->codes[i].arg1);
 	}
 }
 
 void translateCond(node* exp, int labelTrue, int labelFalse, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
-	
+
+	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
 	if(strcmp(exp->childs->name, "NOT") == 0){
 		// Exp : Not Exp1
 		translateCond(exp, labelFalse, labelTrue, stable, ctable, registerNum, labelNum);
@@ -55,6 +64,27 @@ void translateCond(node* exp, int labelTrue, int labelFalse, symbol_table* stabl
 	else if(strcmp(exp->childs->next->name, "RELOP") == 0){
 		// Exp : Exp1 RELOP Exp2
 		
+		char* relop = exp->childs->next->val.sval;
+		node* exp1 = exp->childs, *exp2 = exp->childs->next->next;
+		int t1 = translateExp(exp1, stable, ctable, registerNum, labelNum);
+		int t2 = translateExp(exp2, stable, ctable, registerNum, labelNum);
+
+		// code3 = if t1 op t2 goto label_true
+		reset(op, target, arg1, arg2);
+		sprintf(target, "%s", relop);
+		sprintf(arg1, "t%d", t1);
+		sprintf(arg2, "t%d", t2);
+		newIRcode("IF", target, arg1, arg2, ctable);
+		
+		// code3 goto label_true
+		reset(op, target, arg1, arg2);
+		sprintf(arg1, "label%d", labelTrue);
+		newIRcode("GOTO", target, arg1, arg2, ctable);
+
+		// code3 goto label_false
+		reset(op, target, arg1, arg2);
+		sprintf(arg1, "label%d", labelFalse);
+		newIRcode("GOTO", target, arg1, arg2, ctable);
 	}
 }
 
@@ -160,7 +190,33 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 	}
 	else if(strcmp(root->childs->next->name, "RELOP") == 0){
 		// 			Exp RELOP Exp
-		char* relop = root->childs->next->val.sval;
+		int labelTrue = (*labelNum)++;
+		int labelFalse = (*labelNum)++;
+		int temp = (*registerNum)++;
+
+		// code0 place := #0
+		reset(op, target, arg1, arg2);
+		sprintf(target, "t%d", temp);
+		sprintf(arg1, "#0");
+		newIRcode("=", target, arg1, arg2, ctable);
+
+		// code1
+		translateCond(root, labelTrue, labelFalse, stable, ctable, registerNum, labelNum);
+
+		// code2 LABEL label1 
+		reset(op, target, arg1, arg2);
+		sprintf(arg1, "label%d", labelTrue);
+		newIRcode("LABEL", target, arg1, arg2, ctable);
+		// place := 1
+		reset(op, target, arg1, arg2);
+		sprintf(target, "t%d", temp);
+		sprintf(arg1, "#1");
+		newIRcode("=", target, arg1, arg2, ctable);
+
+		// LABEL label2
+		reset(op, target, arg1, arg2);
+		sprintf(arg1, "label%d", labelFalse);
+		newIRcode("LABEL", target, arg1, arg2, ctable);
 
 	}
 }

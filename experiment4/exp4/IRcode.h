@@ -1,5 +1,5 @@
 #include "symbol.h"
-#define REGISTERMAXLEN 5
+#define REGISTERMAXLEN 20
 
 // 单个域
 typedef struct
