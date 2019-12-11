@@ -551,9 +551,11 @@ symbol* findSymbolInTable(char* name, symbol_table* st){
 
 int getSymbolIndex(char* name, symbol_table* st){
 	for(int i = 0;i < st->totalCnt; i++){
-		if(strcmp(name, (st->symbols)[i].name) == 0)
+		if(strcmp(name, (st->symbols)[i].name) == 0){
 			return i;
+		}
 	}
+
 	return -1;	
 }
 

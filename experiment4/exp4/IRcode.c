@@ -27,7 +27,7 @@ void printOutInterCode(code_table* ct){
 		if(strcmp(ct->codes[i].op, "=") == 0)
 			printf("%s := %s\n", ct->codes[i].target, ct->codes[i].arg1);
 		else if(strcmp(ct->codes[i].op, "FUNCTION") == 0)
-			printf("FUNCTION %s\n", ct->codes[i].arg1);
+			printf("FUNCTION %s :\n", ct->codes[i].arg1);
 		else if(strcmp(ct->codes[i].op, "RETURN") == 0)
 			printf("RETURN %s\n", ct->codes[i].arg1);
 		else if(strcmp(ct->codes[i].op, "+") == 0 || 
@@ -50,13 +50,30 @@ void printOutInterCode(code_table* ct){
 			printf("GOTO %s\n", ct->codes[i].arg1);
 		}
 		else if(strcmp(ct->codes[i].op, "LABEL") == 0)
-			printf("LABEL %s\n", ct->codes[i].arg1);
+			printf("LABEL %s : \n", ct->codes[i].arg1);
 	}
 }
 
+void addLabelIR(int label, code_table* ctable){
+	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
+	reset(op, target, arg1, arg2);
+	sprintf(arg1, "label%d", label);
+	newIRcode("LABEL", target, arg1, arg2, ctable);
+}
+
+void addGotoIR(int label, code_table* ctable){
+	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
+	reset(op, target, arg1, arg2);
+	sprintf(arg1, "label%d", label);
+	newIRcode("GOTO", target, arg1, arg2, ctable);
+}
+
 void translateCond(node* exp, int labelTrue, int labelFalse, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
+	// 标记已访问
+	exp->isVisited = 1;
 
 	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
+
 	if(strcmp(exp->childs->name, "NOT") == 0){
 		// Exp : Not Exp1
 		translateCond(exp, labelFalse, labelTrue, stable, ctable, registerNum, labelNum);
@@ -69,6 +86,7 @@ void translateCond(node* exp, int labelTrue, int labelFalse, symbol_table* stabl
 		int t1 = translateExp(exp1, stable, ctable, registerNum, labelNum);
 		int t2 = translateExp(exp2, stable, ctable, registerNum, labelNum);
 
+		// printf("find %s: %d %s: %d \n", exp1->childs->val.sval, t1, exp2->childs->val.sval, t2);
 		// code3 = if t1 op t2 goto label_true
 		reset(op, target, arg1, arg2);
 		sprintf(target, "%s", relop);
@@ -77,14 +95,17 @@ void translateCond(node* exp, int labelTrue, int labelFalse, symbol_table* stabl
 		newIRcode("IF", target, arg1, arg2, ctable);
 		
 		// code3 goto label_true
-		reset(op, target, arg1, arg2);
-		sprintf(arg1, "label%d", labelTrue);
-		newIRcode("GOTO", target, arg1, arg2, ctable);
+		addGotoIR(labelTrue, ctable);
 
 		// code3 goto label_false
-		reset(op, target, arg1, arg2);
-		sprintf(arg1, "label%d", labelFalse);
-		newIRcode("GOTO", target, arg1, arg2, ctable);
+		addGotoIR(labelFalse, ctable);
+	}
+	else if(strcmp(exp->childs->next->name, "AND") == 0){
+		// EXP : Exp1 AND Exp2
+		int label1 = (*labelNum)++;
+		translateCond(exp->childs, label1, labelFalse, stable, ctable, registerNum, labelNum);
+		addLabelIR(label1, ctable);
+		translateCond(exp->childs->next->next, labelTrue, labelFalse, stable, ctable, registerNum, labelNum);
 	}
 }
 
@@ -92,11 +113,51 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 	// 返回结果存入的寄存器的编号
 	// 解析Exp
 
+	if(root == NULL)
+		printf("yes root may be null\n");
+	if(root->childs == NULL)
+		printf("yes root's child may be null\n");
+
 	// 标记该节点已访问
 	root->isVisited = 1;
 
 	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
-	if(strcmp(root->childs->name, "INT") == 0){
+	if((root->childs != NULL && strcmp(root->childs->name, "NOT") == 0) || 
+	 	(root->childs->next != NULL && (strcmp(root->childs->next->name, "RELOP") == 0 ||
+		strcmp(root->childs->next->name, "AND") == 0 || 
+		strcmp(root->childs->next->name, "OR") == 0 ))){
+		//Exp:		Exp RELOP Exp
+		// 			NOT Exp
+		// 			Exp1 AND Exp2
+		// 			Exp1 OR Exp2
+		int labelTrue = (*labelNum)++;
+		int labelFalse = (*labelNum)++;
+		int temp = (*registerNum)++;
+
+		// code0 place := #0
+		reset(op, target, arg1, arg2);
+		sprintf(target, "t%d", temp);
+		sprintf(arg1, "#0");
+		newIRcode("=", target, arg1, arg2, ctable);
+
+		// code1
+		translateCond(root, labelTrue, labelFalse, stable, ctable, registerNum, labelNum);
+
+		// code2 LABEL label1 
+		addLabelIR(labelTrue, ctable);
+
+		// place := 1
+		reset(op, target, arg1, arg2);
+		sprintf(target, "t%d", temp);
+		sprintf(arg1, "#1");
+		newIRcode("=", target, arg1, arg2, ctable);
+
+		// LABEL label2
+		addLabelIR(labelFalse, ctable);
+
+		return temp;
+	}
+	else if(root->childs != NULL && strcmp(root->childs->name, "INT") == 0){
 		// 			INT
 		reset(op, target, arg1, arg2);
 		sprintf(target, "t%d", (*registerNum)++);
@@ -104,11 +165,11 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 		newIRcode("=", target, arg1, arg2, ctable);
 		return (*registerNum)-1;
 	}
-	else if(strcmp(root->childs->name, "ID") == 0 && root->childs->next == NULL){
+	else if(root->childs != NULL && root->childs->next == NULL && strcmp(root->childs->name, "ID") == 0){
 		//			ID
 		return getSymbolIndex(root->childs->val.sval, stable);
 	}
-	else if(strcmp(root->childs->next->name, "ASSIGNOP") == 0){
+	else if(root->childs->next != NULL && strcmp(root->childs->next->name, "ASSIGNOP") == 0){
 		// Exp : 	Exp ASSIGNOP Exp
 	
 		// 左EXP标记已访问
@@ -125,10 +186,10 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 
 		return vnum;
 	}
-	else if(strcmp(root->childs->next->name, "PLUS") == 0 || 
+	else if(root->childs->next != NULL && (strcmp(root->childs->next->name, "PLUS") == 0 || 
 			strcmp(root->childs->next->name, "MINUS") == 0 || 
 			strcmp(root->childs->next->name, "STAR") == 0 || 
-			strcmp(root->childs->next->name, "DIV") == 0){
+			strcmp(root->childs->next->name, "DIV") == 0)){
 		// 			Exp PLUS Exp
 		// 			Exp MINUS Exp
 		// 			Exp STAR Exp
@@ -156,7 +217,7 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 
 		return (*registerNum)-1;
 	}
-	else if(strcmp(root->childs->name, "ID") == 0 && strcmp(root->childs->next->name, "LP") == 0){
+	else if(root->childs != NULL && root->childs->next != NULL && strcmp(root->childs->name, "ID") == 0 && strcmp(root->childs->next->name, "LP") == 0){
 		// 			ID LP Args RP
 		// 			ID LP RP
 		if(strcmp(root->childs->next->next->name, "RP") == 0){
@@ -188,48 +249,19 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 			}
 		}	
 	}
-	else if(strcmp(root->childs->next->name, "RELOP") == 0){
-		// 			Exp RELOP Exp
-		int labelTrue = (*labelNum)++;
-		int labelFalse = (*labelNum)++;
-		int temp = (*registerNum)++;
-
-		// code0 place := #0
-		reset(op, target, arg1, arg2);
-		sprintf(target, "t%d", temp);
-		sprintf(arg1, "#0");
-		newIRcode("=", target, arg1, arg2, ctable);
-
-		// code1
-		translateCond(root, labelTrue, labelFalse, stable, ctable, registerNum, labelNum);
-
-		// code2 LABEL label1 
-		reset(op, target, arg1, arg2);
-		sprintf(arg1, "label%d", labelTrue);
-		newIRcode("LABEL", target, arg1, arg2, ctable);
-		// place := 1
-		reset(op, target, arg1, arg2);
-		sprintf(target, "t%d", temp);
-		sprintf(arg1, "#1");
-		newIRcode("=", target, arg1, arg2, ctable);
-
-		// LABEL label2
-		reset(op, target, arg1, arg2);
-		sprintf(arg1, "label%d", labelFalse);
-		newIRcode("LABEL", target, arg1, arg2, ctable);
-
-	}
 }
 
 int translateStmt(node* stmt, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
 	// Stmt : 　　　 CompSt
-	// 			| RETURN Exp SEMI
-	// 			| IF LP Exp RP Stmt
-	// 			| IF LP Exp RP Stmt ELSE Stmt
 	// 标记该节点已被访问
 	stmt->isVisited = 1;
+
 	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
-	if(strcmp(stmt->childs->next->name, "SEMI") == 0){
+	
+	if(strcmp(stmt->childs->name, "CompSt") == 0){
+		return -1;
+	}
+	else if(strcmp(stmt->childs->next->name, "SEMI") == 0){
 		// Stmt : Exp SEMI
 		return translateExp(stmt->childs, stable, ctable, registerNum, labelNum);
 	}
@@ -242,6 +274,47 @@ int translateStmt(node* stmt, symbol_table* stable, code_table* ctable, int* reg
 		reset(op, target, arg1, arg2);
 		sprintf(arg1, "t%d", num1);
 		newIRcode("RETURN", target, arg1, arg2, ctable);
+	}
+	else if(strcmp(stmt->childs->name, "IF") == 0 && stmt->childs->next->next->next->next->next == NULL){
+		//		: IF LP Exp RP Stmt
+		int labelTrue = (*labelNum)++;
+		int labelFalse = (*labelNum)++;
+		node* exp = stmt->childs->next->next;
+		// exp未调用translate函数所以需要在这里标记已访问
+		exp->isVisited = 1;
+
+		translateCond(exp, labelTrue, labelFalse, stable, ctable, registerNum, labelNum);
+
+		addLabelIR(labelTrue, ctable);
+		translateStmt(stmt->childs->next->next->next->next, stable, ctable, registerNum, labelNum);
+		addLabelIR(labelFalse, ctable);
+	}
+	else if(strcmp(stmt->childs->name, "IF") == 0 && strcmp(stmt->childs->next->next->next->next->next->name, "ELSE") == 0){
+		// 		: IF LP Exp RP Stmt ELSE Stmt
+		int label1 = (*labelNum)++;
+		int label2 = (*labelNum)++;
+		int label3 = (*labelNum)++;
+		translateCond(stmt->childs->next->next, label1, label2, stable, ctable, registerNum, labelNum);
+		addLabelIR(label1, ctable);
+		translateStmt(stmt->childs->next->next->next->next, stable, ctable, registerNum, labelNum);
+		addGotoIR(label3, ctable);
+		addLabelIR(label2, ctable);
+		translateStmt(stmt->childs->next->next->next->next->next->next, stable, ctable, registerNum, labelNum);
+		addLabelIR(label3, ctable);
+	}
+	else if(strcmp(stmt->childs->name, "WHILE") == 0){
+		// WHILE LP EXP RP Stmt
+		int label1 = (*labelNum)++;
+		int label2 = (*labelNum)++;
+		int label3 = (*labelNum)++;
+		node* exp = stmt->childs->next->next;
+
+		addLabelIR(label1, ctable);
+		translateCond(exp, label2, label3, stable, ctable, registerNum, labelNum);
+		addLabelIR(label2, ctable);			
+		translateStmt(stmt->childs->next->next->next->next, stable, ctable, registerNum, labelNum);
+		addGotoIR(label1, ctable);
+		addLabelIR(label3, ctable);
 	}
 }
 

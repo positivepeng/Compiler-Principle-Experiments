@@ -371,7 +371,7 @@ int main(int argc, char** argv) {
 	yyparse();
 
 	// dfs输出语法树
-	// dfsTraverse(0, root);
+	dfsTraverse(0, root);
 
 	addSystemFunctions(&symTable);
 
