@@ -53,6 +53,8 @@ void printOutInterCode(code_table* ct){
 			printf("LABEL %s : \n", ct->codes[i].arg1);
 		else if(strcmp(ct->codes[i].op, "ARG") == 0)
 			printf("ARG %s\n", ct->codes[i].arg1);
+		else if(strcmp(ct->codes[i].op, "PARAM") == 0)
+			printf("PARAM %s\n", ct->codes[i].arg1);
 	}
 }
 
@@ -361,6 +363,17 @@ void translateFunDec(node* root, symbol_table* stable, code_table* ctable, int* 
 	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
 	reset(op, target, arg1, arg2);
 	newIRcode("FUNCTION", target, root->childs->val.sval, arg2, ctable);
+
+	// 函数定义如果有参数[假定只有一个参数]
+	if(strcmp(root->childs->next->next->name, "VarList") == 0){
+		// VarList : ParamDec
+		// ParamDec : Specifier VarDec
+		// VarDec : ID
+		reset(op, target, arg1, arg2);
+		node* varList = root->childs->next->next;
+		sprintf(arg1, "t%d", getSymbolIndex(varList->childs->childs->next->childs->val.sval, stable));
+		newIRcode("PARAM", target, arg1, arg2, ctable);
+	}
 }
 
 void generateInterCode(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
