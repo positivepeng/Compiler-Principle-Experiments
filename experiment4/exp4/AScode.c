@@ -54,7 +54,27 @@ int getRegister(char* variableName, int* memory, int regs[32], int used[32]){
 	}
 }
 
-void generateAssemblyCode(code_table* ct){
+// void printOutInterCode(code_table* ct){
+// 	for(int i = 0;i < ct->totalCnt; i++)
+// 		else if(strcmp(ct->codes[i].op, "CALL") == 0){
+// 			printf("%s := CALL %s\n", ct->codes[i].target, ct->codes[i].arg1);
+// 		}
+// 		else if(strcmp(ct->codes[i].op, "IF") == 0){
+// 			printf("IF %s %s %s ",ct->codes[i].arg1, ct->codes[i].target, ct->codes[i].arg2);
+// 		}
+// 		else if(strcmp(ct->codes[i].op, "GOTO") == 0){
+// 			printf("GOTO %s\n", ct->codes[i].arg1);
+// 		}
+// 		else if(strcmp(ct->codes[i].op, "LABEL") == 0)
+// 			printf("LABEL %s : \n", ct->codes[i].arg1);
+// 		else if(strcmp(ct->codes[i].op, "ARG") == 0)
+// 			printf("ARG %s\n", ct->codes[i].arg1);
+// 		else if(strcmp(ct->codes[i].op, "PARAM") == 0)
+// 			printf("PARAM %s\n", ct->codes[i].arg1);
+// 	}
+// }
+
+void generateAssemblyCode(code_table* ct, symbol_table* st){
 	int regs[32], used[32], regNum, memory[100], base = 8;
 	// init
 	printHead();
@@ -73,21 +93,6 @@ void generateAssemblyCode(code_table* ct){
 			printf("\taddi $sp, $sp, 4\n");
 			printf("\tmove $t%d, $v0\n", getRegister(ct->codes[i].target, memory, regs, used)-base);
 		}
-		else if(strcmp(ct->codes[i].op, "=") == 0 && ct->codes[i].arg1[0] == 't'){
-			int tar = getRegister(ct->codes[i].target, memory, regs, used) - base;
-			int arg = getRegister(ct->codes[i].arg1, memory, regs, used) - base;
-			printf("\tmove $t%d, $t%d\n", tar, arg);
-		}
-		else if(strcmp(ct->codes[i].op, "=") == 0 && ct->codes[i].arg1[0] == '#'){
-			int tar = getRegister(ct->codes[i].target, memory, regs, used) - base;
-			printf("\taddi $t%d %d\n", tar, atoi(ct->codes[i].arg1+1));
-		}
-		else if(strcmp(ct->codes[i].op, "+") == 0){
-			int tar = getRegister(ct->codes[i].target, memory, regs, used) - base;
-			int a1 = getRegister(ct->codes[i].arg1, memory, regs, used) - base;
-			int a2 = getRegister(ct->codes[i].arg2, memory, regs, used) - base;
-			printf("\tadd $t%d, $t%d, $t%d\n", tar, a1, a2);
-		}
 		else if(strcmp(ct->codes[i].op, "WRITE") == 0){
 			printf("\tmove $a0, $t%d\n", getRegister(ct->codes[i].arg1, memory, regs, used)-base);
 			printf("\taddi $sp, $sp, -4\n");
@@ -96,9 +101,75 @@ void generateAssemblyCode(code_table* ct){
 			printf("\tlw $ra, 0($sp)\n");
 			printf("\taddi $sp, $sp, 4\n");
 		}
+		else if(strcmp(ct->codes[i].op, "=") == 0 && ct->codes[i].arg1[0] == 't'){
+			int tar = getRegister(ct->codes[i].target, memory, regs, used) - base;
+			int arg = getRegister(ct->codes[i].arg1, memory, regs, used) - base;
+			printf("\tmove $t%d, $t%d\n", tar, arg);
+		}
+		else if(strcmp(ct->codes[i].op, "=") == 0 && ct->codes[i].arg1[0] == '#'){
+			int tar = getRegister(ct->codes[i].target, memory, regs, used) - base;
+			printf("\tli $t%d %d\n", tar, atoi(ct->codes[i].arg1+1));  // +1表示去除符号
+		}
+		else if((strcmp(ct->codes[i].op, "+") == 0) || (strcmp(ct->codes[i].op, "-") == 0) || 
+			(strcmp(ct->codes[i].op, "*") == 0)){
+			int tar = getRegister(ct->codes[i].target, memory, regs, used) - base;
+			int a1 = getRegister(ct->codes[i].arg1, memory, regs, used) - base;
+			int a2 = getRegister(ct->codes[i].arg2, memory, regs, used) - base;
+			if(strcmp(ct->codes[i].op, "+") == 0)
+				printf("\tadd $t%d, $t%d, $t%d\n", tar, a1, a2);
+			else if(strcmp(ct->codes[i].op, "-") == 0)
+				printf("\tsub $t%d, $t%d, $t%d\n", tar, a1, a2);
+			else if(strcmp(ct->codes[i].op, "*") == 0)
+				printf("\tmul $t%d, $t%d, $t%d\n", tar, a1, a2);
+		}
 		else if(strcmp(ct->codes[i].op, "RETURN") == 0){
 			printf("\tmove $v0, $t%d\n", getRegister(ct->codes[i].target, memory, regs, used)-base);
 			printf("\tjr $ra\n");
 		}
+		else if(strcmp(ct->codes[i].op, "CALL") == 0){
+			printf("\tjal %s\n", ct->codes[i].arg1);
+			printf("\tmove $t%d $v0\n", getRegister(ct->codes[i].target, memory, regs, used)-base);
+		}
+		else if(strcmp(ct->codes[i].op, "IF") == 0){
+			int r1 = getRegister(ct->codes[i].arg1, memory, regs, used)-base;
+			int r2 = getRegister(ct->codes[i].arg2, memory, regs, used)-base;
+			
+			char* label = ct->codes[i+1].arg1;
+
+			if(strcmp(ct->codes[i].target, "==") == 0)
+				printf("\tbeq $t%d, $t%d, %s\n", r1, r2, label);
+			else if(strcmp(ct->codes[i].target, "!=") == 0)
+				printf("\tbne $t%d, $t%d, %s\n", r1, r2, label);
+			else if(strcmp(ct->codes[i].target, ">") == 0)
+				printf("\tbgt $t%d, $t%d, %s\n", r1, r2, label);
+			else if(strcmp(ct->codes[i].target, "<") == 0)
+				printf("\tblt $t%d, $t%d, %s\n", r1, r2, label);
+			else if(strcmp(ct->codes[i].target, ">=") == 0)
+				printf("\tbge $t%d, $t%d, %s\n", r1, r2, label);
+			else if(strcmp(ct->codes[i].target, "<=") == 0)
+				printf("\tble $t%d, $t%d, %s\n", r1, r2, label);
+			i++;
+		}
+		else if(strcmp(ct->codes[i].op, "GOTO") == 0){
+			printf("\tj %s\n", ct->codes[i].arg1);
+		}
+		else if(strcmp(ct->codes[i].op, "LABEL") == 0){
+			printf("%s:\n", ct->codes[i].arg1);
+		}
+		else if(strcmp(ct->codes[i].op, "ARG") == 0){
+			// 获取函数参数对应的寄存器
+			char* funcName = ct->codes[i+1].arg1;
+			symbol* sym = findSymbolInTable(funcName, st);
+			char* paramName = (sym->fieldName)[0];
+		
+			int paramIndex = getSymbolIndex(paramName, st);
+			// 把参数赋值给对应的函数参数寄存器
+			char param[10];
+			sprintf(param, "$t%d", paramIndex);
+			int paramR = getRegister(param, memory, regs, used)-base;
+			int valueR = getRegister(ct->codes[i].arg1, memory, regs, used)-base;  // 分别为参数对应的寄存器的编号和传进函数的值对应的编号
+			printf("$t%d = $t%d\n", paramR, valueR);
+		}
+
 	}
 }
