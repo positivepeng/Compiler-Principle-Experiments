@@ -330,7 +330,7 @@ void parseAllExp(node* root, symbol_table* st){
 	}
 }
 
-void parseVarList(node* varList, int* paramCnt, symbol_type* paramType, char** fieldName){
+void parseVarList(node* varList, int* paramCnt, symbol_type* paramType, char** fieldName, symbol_table* st){
 	// VarList : 	ParamDec COMMA VarList
 	// 				ParamDec
 	if(varList == NULL)
@@ -339,13 +339,22 @@ void parseVarList(node* varList, int* paramCnt, symbol_type* paramType, char** f
 	paramType[*paramCnt] = strcmp(varList->childs->childs->childs->val.sval, "int") == 0 ? INTNAME : FLOATNAME;
 	fieldName[*paramCnt] = malloc(strlen(varList->childs->childs->next->childs->val.sval)+1);
 	strcpy(fieldName[*paramCnt], varList->childs->childs->next->childs->val.sval);
-	(*paramCnt)++;
 	
+	// 加到符号表中
+	union VAL valIn;
+	if(paramType[*paramCnt] == INTNAME)
+		valIn.ival = DEFAULTINT;
+	else
+		valIn.fval = DEFAULTFLOAT;
+	append2symTable(paramType[*paramCnt], fieldName[*paramCnt], valIn, st);
+
+	(*paramCnt)++;
+
 	if(varList->childs->next != NULL)
-		parseVarList(varList->childs->next->next, paramCnt, paramType, fieldName);
+		parseVarList(varList->childs->next->next, paramCnt, paramType, fieldName, st);
 }
 
-void parseDefList(node* defList, int* paramCnt, symbol_type* paramType, char* fieldName[MAXFILEDNUM]){
+void parseDefList(node* defList, int* paramCnt, symbol_type* paramType, char* fieldName[MAXFILEDNUM], symbol_table* st){
 	// DefList :  Def DefList
 	// 			| empty
 	// Def : Specifier DecList SEMI
@@ -365,7 +374,7 @@ void parseDefList(node* defList, int* paramCnt, symbol_type* paramType, char* fi
 		strcpy(fieldName[*paramCnt], name);
 		(*paramCnt)++;
 	}
-	parseDefList(defList->childs->next, paramCnt, paramType, fieldName);
+	parseDefList(defList->childs->next, paramCnt, paramType, fieldName, st);
 }
 
 void saveSymbol2table(node* root, symbol_table* st){
@@ -451,7 +460,7 @@ void saveSymbol2table(node* root, symbol_table* st){
 					// 最新添加的符号就是结构体
 					symbol* sym = &(st->symbols)[st->totalCnt-1];
 					sym->cnt = 0;
-					parseDefList(defList, &(sym->cnt), sym->paramType, sym->fieldName);	
+					parseDefList(defList, &(sym->cnt), sym->paramType, sym->fieldName, st);	
 				}
 			}
 			else if(strcmp(spec->childs->name, "TYPE") == 0){
@@ -481,7 +490,7 @@ void saveSymbol2table(node* root, symbol_table* st){
 			if(strcmp(spec->next->childs->next->next->name, "VarList") == 0){
 				// FunDec : ID LP VarList RP
 				// 默认返回值和参数只有int或者float
-				parseVarList(spec->next->childs->next->next, &(sym->cnt), sym->paramType, sym->fieldName);	
+				parseVarList(spec->next->childs->next->next, &(sym->cnt), sym->paramType, sym->fieldName, st);	
 			}
 		}
 	}

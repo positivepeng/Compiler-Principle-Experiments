@@ -47,9 +47,9 @@ void parseFuncDec(symbol_type typeIn, node* root, symbol_table* st);
 int checkArgs(symbol* sym, node* args,symbol_table* st, int currCnt);
 
 void parseAllExp(node* root, symbol_table* st);
-void parseVarList(node* varList, int* paramCnt, symbol_type* paramType, char** fieldName);
+void parseVarList(node* varList, int* paramCnt, symbol_type* paramType, char** fieldName, symbol_table* st);
 
-void parseDefList(node* defList, int* paramCnt, symbol_type* paramType, char* fieldName[MAXFILEDNUM]);
+void parseDefList(node* defList, int* paramCnt, symbol_type* paramType, char* fieldName[MAXFILEDNUM], symbol_table* st);
 
 void saveSymbol2table(node* root, symbol_table* st);
 

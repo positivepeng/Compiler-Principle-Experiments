@@ -51,6 +51,8 @@ void printOutInterCode(code_table* ct){
 		}
 		else if(strcmp(ct->codes[i].op, "LABEL") == 0)
 			printf("LABEL %s : \n", ct->codes[i].arg1);
+		else if(strcmp(ct->codes[i].op, "ARG") == 0)
+			printf("ARG %s\n", ct->codes[i].arg1);
 	}
 }
 
@@ -220,6 +222,7 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 	else if(root->childs != NULL && root->childs->next != NULL && strcmp(root->childs->name, "ID") == 0 && strcmp(root->childs->next->name, "LP") == 0){
 		// 			ID LP Args RP
 		// 			ID LP RP
+		
 		if(strcmp(root->childs->next->next->name, "RP") == 0){
 			if(strcmp(root->childs->val.sval, "read") == 0){
 				// 调用系统函数read
@@ -247,30 +250,49 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 				sprintf(arg1, "t%d", num);
 				newIRcode("WRITE", target, arg1, arg2, ctable);
 			}
+			else{   // 自定义的一个函数的参数
+				// Args : Exp 
+				node* exp = root->childs->next->next->childs;
+				int num1 = translateExp(exp, stable, ctable, registerNum, labelNum);
+				reset(op, target, arg1, arg2);
+				sprintf(arg1, "t%d", num1);
+				newIRcode("ARG", target, arg1, arg2, ctable);
+
+				reset(op, target, arg1, arg2);
+				sprintf(target, "t%d", (*registerNum)++);
+				sprintf(arg1, "%s", root->childs->val.sval);
+				newIRcode("CALL", target, arg1, arg2, ctable);
+				return (*registerNum)-1;	
+			}
 		}	
 	}
 }
 
-int translateStmt(node* stmt, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
-	// Stmt : 　　　 CompSt
+void translateStmt(node* stmt, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
 	// 标记该节点已被访问
+	if(stmt == NULL)
+		return ;
+
 	stmt->isVisited = 1;
 
 	char op[10], target[REGISTERMAXLEN], arg1[REGISTERMAXLEN], arg2[REGISTERMAXLEN];
 	
-	if(strcmp(stmt->childs->name, "CompSt") == 0){
-		return -1;
+	if(stmt->childs != NULL && strcmp(stmt->childs->name, "CompSt") == 0){
+		// Stmt  : CompSt
+		// CompSt : LC DefList StmtList RC
+		// 假设这里的DefList为空
+		node* stmtList = stmt->childs->childs->next->next;
+		translateStmtList(stmtList, stable, ctable, registerNum, labelNum);
 	}
 	else if(strcmp(stmt->childs->next->name, "SEMI") == 0){
 		// Stmt : Exp SEMI
-		return translateExp(stmt->childs, stable, ctable, registerNum, labelNum);
+		translateExp(stmt->childs, stable, ctable, registerNum, labelNum);
 	}
 	else if(strcmp(stmt->childs->name, "RETURN") == 0){
 		// Stmt : RETURN Exp SEMI
 		node* exp = stmt->childs->next;
 		int num1 = translateExp(exp, stable, ctable, registerNum, labelNum);
 
-		// 新增中间代码　return语句
 		reset(op, target, arg1, arg2);
 		sprintf(arg1, "t%d", num1);
 		newIRcode("RETURN", target, arg1, arg2, ctable);
@@ -316,6 +338,16 @@ int translateStmt(node* stmt, symbol_table* stable, code_table* ctable, int* reg
 		addGotoIR(label1, ctable);
 		addLabelIR(label3, ctable);
 	}
+}
+
+void translateStmtList(node* stmtList, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum){
+	//StmtList : Stmt StmtList
+	// : empty
+	if(stmtList == NULL || stmtList->childs == NULL)
+		return ;
+	node* nextStmtList = stmtList->childs->next;
+	translateStmt(stmtList->childs, stable, ctable, registerNum, labelNum);
+	translateStmtList(nextStmtList, stable, ctable, registerNum, labelNum);
 }
 
 void translateFunDec(node* root, symbol_table* stable, code_table* ctable, int* registerNum){

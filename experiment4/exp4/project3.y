@@ -371,7 +371,7 @@ int main(int argc, char** argv) {
 	yyparse();
 
 	// dfs输出语法树
-	dfsTraverse(0, root);
+	// dfsTraverse(0, root);
 
 	addSystemFunctions(&symTable);
 
@@ -382,7 +382,7 @@ int main(int argc, char** argv) {
 	parseAllExp(root, &symTable);
 
 	// 输出符号表
-	printOutTable(&symTable);
+	// printOutTable(&symTable);
 
 	int registerNum = symTable.totalCnt;  // 前totalCnt个寄存器存符号表中的变量
 	int labelNum = 0;

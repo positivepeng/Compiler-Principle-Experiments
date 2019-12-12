@@ -1,3 +1,5 @@
+
+
 int main(){
 	int a, b, flag;
 	a = read();
@@ -7,10 +9,7 @@ int main(){
 		flag = 1;
 	else
 		flag = 0;
-
-	write(a);
-	write(b);
-
+	
 	if(a == b && flag == 1)
 		write(1);
 

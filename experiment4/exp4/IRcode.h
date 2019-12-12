@@ -32,6 +32,7 @@ void addGotoIR(int label, code_table* ctable);
 
 void translateCond(node* root, int labelTrue, int labelFalse, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
 int translateExp(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
-int translateStmt(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
+void translateStmt(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
+void translateStmtList(node* stmt, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
 void translateFunDec(node* root, symbol_table* stable, code_table* ctable, int* registerNum);
 void generateInterCode(node* root, symbol_table* stable, code_table* ctable, int* registerNum, int* labelNum);
