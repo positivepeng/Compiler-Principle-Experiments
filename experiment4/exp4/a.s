@@ -33,9 +33,17 @@ label1:
 	li $t2 1
 	sub $t3, $t0, $t2
 	addi $sp, $sp, -4
+	sw $ra, 0($sp)
+	addi $sp, $sp, -4
+	sw $t0, 0($sp)
+	addi $sp, $sp, -4
 	sw $t3, 0($sp)
 	jal fact
-	move $t4 $v0
+	lw $t0, 0($sp)
+	addi $sp, $sp, 4
+	lw $ra, 0($sp)
+	addi $sp, $sp, 4
+	move $t4, $v0
 	mul $t5, $t0, $t4
 	move $v0, $t5
 	jr $ra
@@ -53,9 +61,17 @@ main:
 	j label4
 label3:
 	addi $sp, $sp, -4
+	sw $ra, 0($sp)
+	addi $sp, $sp, -4
+	sw $t0, 0($sp)
+	addi $sp, $sp, -4
 	sw $t7, 0($sp)
 	jal fact
-	move $t9 $v0
+	lw $t0, 0($sp)
+	addi $sp, $sp, 4
+	lw $ra, 0($sp)
+	addi $sp, $sp, 4
+	move $t9, $v0
 	move $t0, $t9
 	j label5
 label4:

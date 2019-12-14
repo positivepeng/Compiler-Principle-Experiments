@@ -163,22 +163,47 @@ void generateAssemblyCode(code_table* ct, symbol_table* st){
 		else if(strcmp(ct->codes[i].op, "ARG") == 0){
 			// 通过栈传递参数
 			// 下一条必定是CALL
-			printf("\taddi $sp, $sp, -8\n");
-			printf("\tsw $ra, 4($sp)\n");
+			// 存返回地址
+			printf("\taddi $sp, $sp, -4\n");
+			printf("\tsw $ra, 0($sp)\n");
+			// 保存局部变量
+			char* funcName = ct->codes[i+1].arg1;
+			symbol* sym = findSymbolInTable(funcName, st);
+			if(sym->cnt > 0){
+				char* paramName = (sym->fieldName)[0];
+				int paramIndex = getSymbolIndex(paramName, st);
+				// 把参数赋值给对应的函数参数寄存器
+				char param[10];
+				sprintf(param, "t%d", paramIndex);
+				int paramR = getRegister(param, memory, regs, used)-base;	
+				printf("\taddi $sp, $sp, -4\n");
+				printf("\tsw $t%d, 0($sp)\n", paramR);
+			}
+			
+			// 存传入函数的参数
+			printf("\taddi $sp, $sp, -4\n");
 			printf("\tsw $t%d, 0($sp)\n", getRegister(ct->codes[i].arg1, memory, regs, used)-base);
+			// 调用函数
 			printf("\tjal %s\n", ct->codes[i+1].arg1);
+			if(sym->cnt > 0){
+				// 恢复局部变量
+				char* paramName = (sym->fieldName)[0];
+				int paramIndex = getSymbolIndex(paramName, st);
+				// 把参数赋值给对应的函数参数寄存器
+				char param[10];
+				sprintf(param, "t%d", paramIndex);
+				int paramR = getRegister(param, memory, regs, used)-base;
+				printf("\tlw $t%d, 0($sp)\n", paramR);
+				printf("\taddi $sp, $sp, 4\n");	
+			}
+			
+			// 恢复返回地址
 			printf("\tlw $ra, 0($sp)\n");
 			printf("\taddi $sp, $sp, 4\n");
+			
+			// 得到函数调用结果
 			printf("\tmove $t%d, $v0\n", getRegister(ct->codes[i+1].target, memory, regs, used)-base);
-			// char* funcName = ct->codes[i+1].arg1;
-			// symbol* sym = findSymbolInTable(funcName, st);
-			// char* paramName = (sym->fieldName)[0];
-		
-			// int paramIndex = getSymbolIndex(paramName, st);
-			// // 把参数赋值给对应的函数参数寄存器
-			// char param[10];
-			// sprintf(param, "$t%d", paramIndex);
-			// int paramR = getRegister(param, memory, regs, used)-base;
+			
 			// int valueR = getRegister(ct->codes[i].arg1, memory, regs, used)-base;  // 分别为参数对应的寄存器的编号和传进函数的值对应的编号
 			// printf("$t%d = $t%d\n", paramR, valueR);
 		}
