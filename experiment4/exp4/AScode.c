@@ -123,13 +123,17 @@ void generateAssemblyCode(code_table* ct, symbol_table* st){
 				printf("\tmul $t%d, $t%d, $t%d\n", tar, a1, a2);
 		}
 		else if(strcmp(ct->codes[i].op, "RETURN") == 0){
-			printf("\tmove $v0, $t%d\n", getRegister(ct->codes[i].target, memory, regs, used)-base);
+			printf("\tmove $v0, $t%d\n", getRegister(ct->codes[i].arg1, memory, regs, used)-base);
 			printf("\tjr $ra\n");
 		}
-		else if(strcmp(ct->codes[i].op, "CALL") == 0){
-			printf("\tjal %s\n", ct->codes[i].arg1);
-			printf("\tmove $t%d $v0\n", getRegister(ct->codes[i].target, memory, regs, used)-base);
-		}
+		// else if(strcmp(ct->codes[i].op, "CALL") == 0){
+		// 	printf("\taddi $sp, $sp, -8\n");
+		// 	printf("\tsw $ra, 0($sp)\n");
+		// 	printf("\tjal %s\n", ct->codes[i].arg1);
+		// 	//printf("\tmove $t%d $v0\n", getRegister(ct->codes[i].target, memory, regs, used)-base);
+		// 	printf("\tlw $ra, 0($sp)\n");
+		// 	printf("\taddi $sp, $sp, 4\n");
+		// }
 		else if(strcmp(ct->codes[i].op, "IF") == 0){
 			int r1 = getRegister(ct->codes[i].arg1, memory, regs, used)-base;
 			int r2 = getRegister(ct->codes[i].arg2, memory, regs, used)-base;
@@ -157,19 +161,31 @@ void generateAssemblyCode(code_table* ct, symbol_table* st){
 			printf("%s:\n", ct->codes[i].arg1);
 		}
 		else if(strcmp(ct->codes[i].op, "ARG") == 0){
-			// 获取函数参数对应的寄存器
-			char* funcName = ct->codes[i+1].arg1;
-			symbol* sym = findSymbolInTable(funcName, st);
-			char* paramName = (sym->fieldName)[0];
+			// 通过栈传递参数
+			// 下一条必定是CALL
+			printf("\taddi $sp, $sp, -8\n");
+			printf("\tsw $ra, 4($sp)\n");
+			printf("\tsw $t%d, 0($sp)\n", getRegister(ct->codes[i].arg1, memory, regs, used)-base);
+			printf("\tjal %s\n", ct->codes[i+1].arg1);
+			printf("\tlw $ra, 0($sp)\n");
+			printf("\taddi $sp, $sp, 4\n");
+			printf("\tmove $t%d, $v0\n", getRegister(ct->codes[i+1].target, memory, regs, used)-base);
+			// char* funcName = ct->codes[i+1].arg1;
+			// symbol* sym = findSymbolInTable(funcName, st);
+			// char* paramName = (sym->fieldName)[0];
 		
-			int paramIndex = getSymbolIndex(paramName, st);
-			// 把参数赋值给对应的函数参数寄存器
-			char param[10];
-			sprintf(param, "$t%d", paramIndex);
-			int paramR = getRegister(param, memory, regs, used)-base;
-			int valueR = getRegister(ct->codes[i].arg1, memory, regs, used)-base;  // 分别为参数对应的寄存器的编号和传进函数的值对应的编号
-			printf("$t%d = $t%d\n", paramR, valueR);
+			// int paramIndex = getSymbolIndex(paramName, st);
+			// // 把参数赋值给对应的函数参数寄存器
+			// char param[10];
+			// sprintf(param, "$t%d", paramIndex);
+			// int paramR = getRegister(param, memory, regs, used)-base;
+			// int valueR = getRegister(ct->codes[i].arg1, memory, regs, used)-base;  // 分别为参数对应的寄存器的编号和传进函数的值对应的编号
+			// printf("$t%d = $t%d\n", paramR, valueR);
 		}
-
+		else if(strcmp(ct->codes[i].op, "PARAM") == 0){
+			// 函数形参数，通过栈传递参数
+			printf("\tlw $t%d, 0($sp)\n", getRegister(ct->codes[i].arg1, memory, regs, used)-base);
+			printf("\taddi $sp, $sp, 4\n");
+		}
 	}
 }

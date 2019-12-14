@@ -255,9 +255,9 @@ int translateExp(node* root, symbol_table* stable, code_table* ctable, int* regi
 			else{   // 自定义的一个函数的参数
 				// Args : Exp 
 				node* exp = root->childs->next->next->childs;
-				int num1 = translateExp(exp, stable, ctable, registerNum, labelNum);
+				//int num1 = translateExp(exp, stable, ctable, registerNum, labelNum);
 				reset(op, target, arg1, arg2);
-				sprintf(arg1, "t%d", num1);
+				sprintf(arg1, "t%d", num);
 				newIRcode("ARG", target, arg1, arg2, ctable);
 
 				reset(op, target, arg1, arg2);

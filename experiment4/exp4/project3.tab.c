@@ -2302,17 +2302,17 @@ int main(int argc, char** argv) {
 	parseAllExp(root, &symTable);
 
 	// 输出符号表
-	printOutTable(&symTable);
+	// printOutTable(&symTable);
 
 	int registerNum = symTable.totalCnt;  // 前totalCnt个寄存器存符号表中的变量
 	int labelNum = 0;
 	// 生成中间代码
 	// int output = 0;
 	generateInterCode(root, &symTable, &codeTable, &registerNum, &labelNum);
-	printOutInterCode(&codeTable);
+	// printOutInterCode(&codeTable);
 	//printf("\n\n");
 	// 生成汇编代码
-	//generateAssemblyCode(&codeTable, &symTable);
+	generateAssemblyCode(&codeTable, &symTable);
 
 	// 释放内存(尚未完善)
 	// freeTableMemory(&symTable);
