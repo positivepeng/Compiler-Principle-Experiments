@@ -13,7 +13,6 @@ int main(){
 	if(n >= 3){
 		write(c);
 		while(n > 3){
-			write(c);
 			n = n - 1;
 			temp = b+c;
 			a = b;
